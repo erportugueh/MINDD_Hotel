@@ -1,9 +1,94 @@
 import numpy as np
 from sklearn.datasets import make_blobs
 from sklearn.naive_bayes import GaussianNB
-from sklearn.model_selection import train_test_split
+from sklearn.model_selection import train_test_split, cross_val_predict
 from sklearn.metrics import accuracy_score, classification_report
 import matplotlib.pyplot as plt
+
+from sklearn.metrics import accuracy_score, classification_report, confusion_matrix
+import matplotlib.pyplot as plt
+from sklearn.preprocessing import StandardScaler
+
+
+from sklearn.model_selection import train_test_split, cross_val_score
+from sklearn.neighbors import KNeighborsClassifier
+    
+
+class Algoritmos:
+    def determine_best_K(self, X, Y):
+        # Splitting the dataset into training and testing sets
+        X_train, X_test, y_train, y_test = train_test_split(X, Y, test_size=0.2, random_state=42)
+
+        accuracies = []
+        k_range=range(1, 21)
+        # Testing different values of k
+        for k in k_range:
+            knn = KNeighborsClassifier(n_neighbors=k)
+            knn.fit(X_train, y_train)
+            y_pred = knn.predict(X_test)
+            accuracy = accuracy_score(y_test, y_pred)
+            accuracies.append(accuracy)
+
+        # Plotting the accuracy for each value of k
+        plt.figure(figsize=(10, 5))
+        plt.plot(k_range, accuracies, marker='o')
+        plt.title('K-Value vs Accuracy')
+        plt.xlabel('Number of Neighbors K')
+        plt.ylabel('Accuracy')
+        plt.xticks(k_range)
+        plt.grid()
+        plt.show()
+
+        # Finding the best k
+        best_k = k_range[accuracies.index(max(accuracies))]
+        print(f"The best k value is: {best_k} with an accuracy of: {max(accuracies):.4f}")
+
+        return best_k
+    
+
+
+
+    def knn_function(self, X, Y, k):
+      
+      
+
+        # Splitting the dataset into training and testing sets
+        X_train, X_test, y_train, y_test = train_test_split(X, Y, test_size=0.2, random_state=42)
+
+        # Creating the KNN classifier
+        knn = KNeighborsClassifier(n_neighbors=k)
+
+        # Fitting the model
+        knn.fit(X_train, y_train)
+
+        # Making predictions
+        y_pred = knn.predict(X_test)
+        acc=accuracy_score(y_test, y_pred)
+        # Evaluating the model
+        print("Accuracy:", acc*100)
+        print("\nClassification Report:\n", classification_report(y_test, y_pred))
+        print("\nCoeficient", knn.coef_)
+
+
+    def crossValidation_knn(self, X, Y, cv, k):
+        # Scale the entire feature set
+        scaler = StandardScaler()
+        X_scaled = scaler.fit_transform(X)
+
+        # Perform cross-validation with KNN and get predictions
+        knn = KNeighborsClassifier(n_neighbors=k)
+        y_pred = cross_val_predict(knn, X_scaled, Y, cv=cv)
+
+        # Calculate mean accuracy
+        mean_scores = np.mean(cross_val_score(knn, X_scaled, Y, cv=cv, scoring='accuracy')) * 100
+        print(f"KNN model accuracy with {cv}-fold cross-validation (in %):", mean_scores)
+
+        # Generate and print classification report
+        print("\nClassification Report:\n", classification_report(Y, y_pred))
+
+        return mean_scores
+  
+
 
 
 # K-Means
