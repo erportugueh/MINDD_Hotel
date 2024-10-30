@@ -8,10 +8,14 @@ import matplotlib.pyplot as plt
 from sklearn.metrics import accuracy_score, classification_report, confusion_matrix
 import matplotlib.pyplot as plt
 from sklearn.preprocessing import StandardScaler
+from sklearn.linear_model import LogisticRegression
 
 
 from sklearn.model_selection import train_test_split, cross_val_score
 from sklearn.neighbors import KNeighborsClassifier
+from sklearn.ensemble import VotingClassifier
+from sklearn.svm import SVC
+from sklearn.ensemble import BaggingClassifier
     
 
 class Algoritmos:
@@ -163,6 +167,152 @@ def NaiveBayes():
 
 #----------------------------------------------------------------------------------
 
+def majority_voting_classifiers(X, Y, classifiers, cv=5):
+    # Split the data into training and testing sets
+    X_train, X_test, y_train, y_test = train_test_split(X, Y, test_size=0.2, random_state=42)
 
+    # Create a VotingClassifier with the provided classifiers
+    voting_clf = VotingClassifier(estimators=classifiers, voting='hard')
+
+    # Train the VotingClassifier
+    voting_clf.fit(X_train, y_train)
+
+    # Make predictions
+    y_pred = voting_clf.predict(X_test)
+
+    # Evaluate the classifier
+    accuracy = accuracy_score(y_test, y_pred)
+    report = classification_report(y_test, y_pred)
+
+    print(f"Accuracy: {accuracy}")
+    print("Classification Report:")
+    print(report)
+
+    return accuracy
+
+
+    # Scale the feature set
+    scaler = StandardScaler()
+    X_scaled = scaler.fit_transform(X)
+
+    # Create a VotingClassifier with the provided classifiers
+    voting_clf = VotingClassifier(estimators=classifiers, voting='hard')
+
+    # Perform cross-validation and get mean accuracy
+    mean_scores = np.mean(cross_val_score(voting_clf, X_scaled, Y, cv=cv, scoring='accuracy')) * 100
+    print(f"Majority Voting Classifier accuracy with {cv}-fold cross-validation (in %):", mean_scores)
+
+    return mean_scores
+#----------------------------------------------------------------------------------
+def weighted_majority_voting_classifiers(X, Y, classifiers, weights, test_size=0.2):
+    # Split the data into training and testing sets
+    X_train, X_test, y_train, y_test = train_test_split(X, Y, test_size=test_size, random_state=42)
+
+    # Create a VotingClassifier with the provided classifiers and weights
+    voting_clf = VotingClassifier(estimators=classifiers, voting='soft', weights=weights)
+
+    # Train the VotingClassifier
+    voting_clf.fit(X_train, y_train)
+
+    # Make predictions
+    y_pred = voting_clf.predict(X_test)
+
+    # Evaluate the classifier
+    accuracy = accuracy_score(y_test, y_pred)
+    report = classification_report(y_test, y_pred)
+
+    print(f"Accuracy: {accuracy}")
+    print("Classification Report:")
+    print(report)
+
+    return accuracy
+#----------------------------------------------------------------------------------
+def stacking_logistic_regression(X, Y, base_classifiers, test_size=0.2):
+    # Split the data into training and testing sets
+    X_train, X_test, y_train, y_test = train_test_split(X, Y, test_size=test_size, random_state=42)
+
+    # Train base classifiers and get their predictions
+    base_predictions = np.zeros((X_train.shape[0], len(base_classifiers)))
+    for i, (name, clf) in enumerate(base_classifiers):
+        clf.fit(X_train, y_train)
+        base_predictions[:, i] = clf.predict(X_train)
+
+    # Train the meta-classifier (Logistic Regression) on the predictions of base classifiers
+    meta_clf = LogisticRegression()
+    meta_clf.fit(base_predictions, y_train)
+
+    # Get predictions from base classifiers on the test set
+    base_test_predictions = np.zeros((X_test.shape[0], len(base_classifiers)))
+    for i, (name, clf) in enumerate(base_classifiers):
+        base_test_predictions[:, i] = clf.predict(X_test)
+
+    # Make final predictions using the meta-classifier
+    final_predictions = meta_clf.predict(base_test_predictions)
+
+    # Evaluate the classifier
+    accuracy = accuracy_score(y_test, final_predictions)
+    report = classification_report(y_test, final_predictions)
+
+    print(f"Accuracy: {accuracy}")
+    print("Classification Report:")
+    print(report)
+
+    return accuracy
+#----------------------------------------------------------------------------------
+def stacking_svc(X, Y, base_classifiers, test_size=0.2):
+    # Split the data into training and testing sets
+    X_train, X_test, y_train, y_test = train_test_split(X, Y, test_size=test_size, random_state=42)
+
+    # Train base classifiers and get their predictions
+    base_predictions = np.zeros((X_train.shape[0], len(base_classifiers)))
+    for i, (name, clf) in enumerate(base_classifiers):
+        clf.fit(X_train, y_train)
+        base_predictions[:, i] = clf.predict(X_train)
+
+    # Train the meta-classifier (SVM) on the predictions of base classifiers
+    meta_clf = SVC()
+    meta_clf.fit(base_predictions, y_train)
+
+    # Get predictions from base classifiers on the test set
+    base_test_predictions = np.zeros((X_test.shape[0], len(base_classifiers)))
+    for i, (name, clf) in enumerate(base_classifiers):
+        base_test_predictions[:, i] = clf.predict(X_test)
+
+    # Make final predictions using the meta-classifier
+    final_predictions = meta_clf.predict(base_test_predictions)
+
+    # Evaluate the classifier
+    accuracy = accuracy_score(y_test, final_predictions)
+    report = classification_report(y_test, final_predictions)
+
+    print(f"Accuracy: {accuracy}")
+    print("Classification Report:")
+    print(report)
+
+    return accuracy
+#----------------------------------------------------------------------------------
+def bagging_classifier(X, Y, base_classifier, n_estimators=10, test_size=0.2):
+
+    # Split the data into training and testing sets
+    X_train, X_test, y_train, y_test = train_test_split(X, Y, test_size=test_size, random_state=42)
+
+    # Create a BaggingClassifier with the provided base classifier
+    bagging_clf = BaggingClassifier(base_estimator=base_classifier, n_estimators=n_estimators, random_state=42)
+
+    # Train the BaggingClassifier
+    bagging_clf.fit(X_train, y_train)
+
+    # Make predictions
+    y_pred = bagging_clf.predict(X_test)
+
+    # Evaluate the classifier
+    accuracy = accuracy_score(y_test, y_pred)
+    report = classification_report(y_test, y_pred)
+
+    print(f"Accuracy: {accuracy}")
+    print("Classification Report:")
+    print(report)
+
+    return accuracy
 
     
