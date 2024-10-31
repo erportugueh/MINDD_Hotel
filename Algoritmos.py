@@ -1,4 +1,6 @@
+import pandas as pd
 import numpy as np
+import scipy as sp
 from sklearn.datasets import make_blobs
 from sklearn.naive_bayes import GaussianNB
 from sklearn.model_selection import train_test_split, cross_val_predict
@@ -53,9 +55,6 @@ class Algoritmos:
 
 
     def knn_function(self, X, Y, k):
-      
-      
-
         # Splitting the dataset into training and testing sets
         X_train, X_test, y_train, y_test = train_test_split(X, Y, test_size=0.2, random_state=42)
 
@@ -71,7 +70,7 @@ class Algoritmos:
         # Evaluating the model
         print("Accuracy:", acc*100)
         print("\nClassification Report:\n", classification_report(y_test, y_pred))
-        print("\nCoeficient", knn.coef_)
+        print("\nConfusion Matrix", confusion_matrix(y_test, y_pred))
 
 
     def crossValidation_knn(self, X, Y, cv, k):
@@ -91,7 +90,74 @@ class Algoritmos:
         print("\nClassification Report:\n", classification_report(Y, y_pred))
 
         return mean_scores
-  
+    
+    def FunctionChisq(self, inpData, TargetVariable, CategoricalVariablesList):
+        from scipy.stats import chi2_contingency
+        
+        # Creating an empty list of final selected predictors
+        SelectedPredictors=[]
+    
+        for predictor in CategoricalVariablesList:
+            CrossTabResult=pd.crosstab(index=inpData[TargetVariable], columns=inpData[predictor])
+            ChiSqResult = chi2_contingency(CrossTabResult)
+            
+            # If the ChiSq P-Value is <0.05, that means we reject H0
+            if (ChiSqResult[1] < 0.05):
+                print(predictor, 'is correlated with', TargetVariable, '| P-Value:', ChiSqResult[1])
+                SelectedPredictors.append(predictor)
+            else:
+                print(predictor, 'is NOT correlated with', TargetVariable, '| P-Value:', ChiSqResult[1])        
+    
+        
+        return(SelectedPredictors)
+
+    def FunctionAnova(self, inpData, TargetVariable, ContinuousPredictorList):
+        from scipy.stats import f_oneway
+    
+        # Creating an empty list of final selected predictors
+        SelectedPredictors=[]
+        
+        print('##### ANOVA Results ##### \n')
+        for predictor in ContinuousPredictorList:
+            CategoryGroupLists=inpData.groupby(TargetVariable)[predictor].apply(list)
+            AnovaResults = f_oneway(*CategoryGroupLists)
+            
+            # If the ANOVA P-Value is <0.05, that means we reject H0
+            if (AnovaResults[1] < 0.05):
+                print(predictor, 'is correlated with', TargetVariable, '| P-Value:', AnovaResults[1])
+                SelectedPredictors.append(predictor)
+            else:
+                print(predictor, 'is NOT correlated with', TargetVariable, '| P-Value:', AnovaResults[1])
+        
+        return(SelectedPredictors)
+        
+    def lasso_regularization(self, X, y):
+    
+        X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42, stratify=y)
+    
+        scaler = StandardScaler()
+        scaler.fit(X_train)
+    
+        # fit a Logistic Regression model and feature selection altogether 
+        # select the Lasso (l1) penalty.
+        # The selectFromModel class from sklearn, selects the features which coefficients are non-zero
+    
+        sel_ = SelectFromModel(LogisticRegression(C=0.5, penalty='l1', solver='liblinear', random_state=10))
+    
+        sel_.fit(scaler.transform(X_train), y_train)
+    
+        # make a list with the selected features
+        selected_feat = X_train.columns[(sel_.get_support())]
+        
+        print("Number of features which coefficient was shrank to zero: ", np.sum(sel_.estimator_.coef_ == 0))
+        # identify the removed features like this:
+        removed_feats = X_train.columns[(sel_.estimator_.coef_ == 0).ravel().tolist()]
+        print(removed_feats) 
+    
+        # transform data
+        X_lasso = pd.DataFrame(sel_.transform(scaler.transform(X)), columns=selected_feat)
+        
+        return X_lasso
 
 
 
@@ -166,6 +232,8 @@ def NaiveBayes():
 
 
 #----------------------------------------------------------------------------------
+#Afonso
+
 
 def majority_voting_classifiers(X, Y, classifiers, cv=5):
     # Split the data into training and testing sets
