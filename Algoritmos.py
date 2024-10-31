@@ -18,12 +18,13 @@ from sklearn.neighbors import KNeighborsClassifier
 from sklearn.ensemble import VotingClassifier
 from sklearn.svm import SVC
 from sklearn.ensemble import BaggingClassifier
+from sklearn.ensemble import RandomForestClassifier
     
 
 class Algoritmos:
     def determine_best_K(self, X, Y):
         # Splitting the dataset into training and testing sets
-        X_train, X_test, y_train, y_test = train_test_split(X, Y, test_size=0.2, random_state=42)
+        X_train, X_test, y_train, y_test = train_test_split(X, Y, test_size=0.2, random_state=42, stratify=Y)
 
         accuracies = []
         k_range=range(1, 21)
@@ -56,7 +57,7 @@ class Algoritmos:
 
     def knn_function(self, X, Y, k):
         # Splitting the dataset into training and testing sets
-        X_train, X_test, y_train, y_test = train_test_split(X, Y, test_size=0.2, random_state=42)
+        X_train, X_test, y_train, y_test = train_test_split(X, Y, test_size=0.2, random_state=42, stratify=Y)
 
         # Creating the KNN classifier
         knn = KNeighborsClassifier(n_neighbors=k)
@@ -402,6 +403,7 @@ class Algoritmos:
 
     def FunctionAnova(self, inpData, TargetVariable, ContinuousPredictorList):
         from scipy.stats import f_oneway
+
     
         # Creating an empty list of final selected predictors
         SelectedPredictors=[]
@@ -420,9 +422,9 @@ class Algoritmos:
         
         return(SelectedPredictors)
         
-    def lasso_regularization(self, X, y):
+    def lasso_regularization(self, X, Y):
     
-        X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42, stratify=y)
+        X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42, stratify=Y)
     
         scaler = StandardScaler()
         scaler.fit(X_train)
@@ -486,7 +488,7 @@ def kmeans(X, k, max_iters=100, tol=1e-4):
 #----------------------------------------------------------------------------------
 
 # Naive Bayes
-def NaiveBayes():
+def NaiveBayes(self, X, Y):
     
 
     # Generate sample data
@@ -500,7 +502,7 @@ def NaiveBayes():
     
     
     # Split the data into training and testing sets
-    X_train, X_test, y_train, y_test = train_test_split(X, labels, test_size=0.3, random_state=42)
+    X_train, X_test, y_train, y_test = train_test_split(X, labels, test_size=0.3, random_state=42, stratify=Y)
 
     # Initialize the Gaussian Naive Bayes classifier
     gnb = GaussianNB()
@@ -526,7 +528,7 @@ def NaiveBayes():
 
 def majority_voting_classifiers(X, Y, classifiers, cv=5):
     # Split the data into training and testing sets
-    X_train, X_test, y_train, y_test = train_test_split(X, Y, test_size=0.2, random_state=42)
+    X_train, X_test, y_train, y_test = train_test_split(X, Y, test_size=0.2, random_state=42, stratify=Y)
 
     # Create a VotingClassifier with the provided classifiers
     voting_clf = VotingClassifier(estimators=classifiers, voting='hard')
@@ -561,12 +563,12 @@ def majority_voting_classifiers(X, Y, classifiers, cv=5):
 
     return mean_scores
 #----------------------------------------------------------------------------------
-def weighted_majority_voting_classifiers(X, Y, classifiers, weights, test_size=0.2):
+def weighted_majority_voting_classifiers(X, Y, classifiers, test_size=0.2):
     # Split the data into training and testing sets
-    X_train, X_test, y_train, y_test = train_test_split(X, Y, test_size=test_size, random_state=42)
+    X_train, X_test, y_train, y_test = train_test_split(X, Y, test_size=test_size, random_state=42, stratify=Y)
 
     # Create a VotingClassifier with the provided classifiers and weights
-    voting_clf = VotingClassifier(estimators=classifiers, voting='soft', weights=weights)
+    voting_clf = VotingClassifier(estimators=classifiers, voting='soft')
 
     # Train the VotingClassifier
     voting_clf.fit(X_train, y_train)
@@ -586,7 +588,7 @@ def weighted_majority_voting_classifiers(X, Y, classifiers, weights, test_size=0
 #----------------------------------------------------------------------------------
 def stacking_logistic_regression(X, Y, base_classifiers, test_size=0.2):
     # Split the data into training and testing sets
-    X_train, X_test, y_train, y_test = train_test_split(X, Y, test_size=test_size, random_state=42)
+    X_train, X_test, y_train, y_test = train_test_split(X, Y, test_size=test_size, random_state=42, stratify=Y)
 
     # Train base classifiers and get their predictions
     base_predictions = np.zeros((X_train.shape[0], len(base_classifiers)))
@@ -618,7 +620,7 @@ def stacking_logistic_regression(X, Y, base_classifiers, test_size=0.2):
 #----------------------------------------------------------------------------------
 def stacking_svc(X, Y, base_classifiers, test_size=0.2):
     # Split the data into training and testing sets
-    X_train, X_test, y_train, y_test = train_test_split(X, Y, test_size=test_size, random_state=42)
+    X_train, X_test, y_train, y_test = train_test_split(X, Y, test_size=test_size, random_state=42, stratify=Y)
 
     # Train base classifiers and get their predictions
     base_predictions = np.zeros((X_train.shape[0], len(base_classifiers)))
@@ -651,10 +653,10 @@ def stacking_svc(X, Y, base_classifiers, test_size=0.2):
 def bagging_classifier(X, Y, base_classifier, n_estimators=10, test_size=0.2):
 
     # Split the data into training and testing sets
-    X_train, X_test, y_train, y_test = train_test_split(X, Y, test_size=test_size, random_state=42)
+    X_train, X_test, y_train, y_test = train_test_split(X, Y, test_size=test_size, random_state=42, stratify=Y)
 
     # Create a BaggingClassifier with the provided base classifier
-    bagging_clf = BaggingClassifier(base_estimator=base_classifier, n_estimators=n_estimators, random_state=42)
+    bagging_clf = BaggingClassifier(base_estimator=base_classifier, n_estimators=n_estimators, random_state=42, stratify=y)
 
     # Train the BaggingClassifier
     bagging_clf.fit(X_train, y_train)
@@ -671,5 +673,7 @@ def bagging_classifier(X, Y, base_classifier, n_estimators=10, test_size=0.2):
     print(report)
 
     return accuracy
+#----------------------------------------------------------------------------------
+
 
     
