@@ -3,7 +3,7 @@ import numpy as np
 import scipy as sp
 from sklearn.datasets import make_blobs
 from sklearn.naive_bayes import GaussianNB
-from sklearn.model_selection import train_test_split, cross_val_predict
+from sklearn.model_selection import train_test_split, cross_val_predict, LeaveOneOut
 from sklearn.metrics import accuracy_score, classification_report
 import matplotlib.pyplot as plt
 
@@ -11,7 +11,7 @@ from sklearn.metrics import accuracy_score, classification_report, confusion_mat
 import matplotlib.pyplot as plt
 from sklearn.preprocessing import StandardScaler
 from sklearn.linear_model import LogisticRegression
-
+from sklearn.utils import resample
 
 from sklearn.model_selection import train_test_split, cross_val_score
 from sklearn.neighbors import KNeighborsClassifier
@@ -88,8 +88,297 @@ class Algoritmos:
 
         # Generate and print classification report
         print("\nClassification Report:\n", classification_report(Y, y_pred))
+        print(f"Confusion Matrix\n", confusion_matrix(Y, y_pred))
+        return mean_scores
+    def loo_knn(self, X, Y, k):
+
+        # Scale entire feature set
+        scaler = StandardScaler()
+        X_scaled = scaler.fit_transform(X)
+        
+        # Apply Leave-One-Out cross-validation with
+        loo = LeaveOneOut()
+        knn = KNeighborsClassifier(n_neighbors=k)
+
+        scores = cross_val_score(knn, X_scaled, Y, cv=loo, scoring='accuracy')
+        Y_pred= cross_val_predict(knn, X_scaled, Y, cv=loo)
+
+
+        mean_scores = np.mean(scores) * 100
+        print(f"K nearest Neighbors model accuracy with leave-one-out cross-validation (in %):", mean_scores)
+        print(f"Classification report:\n", classification_report(Y, Y_pred))
+        print(f"Confusion Matrix: \n", confusion_matrix(Y, Y_pred))
 
         return mean_scores
+    
+    def bootstrap_knn(self, X_train, Y_train, X_test, Y_test, n, k):
+        scores = []
+        
+        # Scale train and test sets
+        scaler = StandardScaler()
+        X_train_scaled = scaler.fit_transform(X_train)
+        X_test_scaled = scaler.transform(X_test)
+        
+        # Initialize K-Nearest Neighbors model
+        knn = KNeighborsClassifier(n_neighbors=k)
+        knn.fit(X_train_scaled, Y_train)
+        y_pred = knn.predict(X_test)
+
+        # Perform bootstrapping with KNN
+        for _ in range(n):
+            X_bs, y_bs = resample(X_train_scaled, Y_train)
+            knn.fit(X_bs, y_bs)
+            score = knn.score(X_test_scaled, Y_test)
+            scores.append(score)
+            
+        mean_score = np.mean(scores) * 100
+        print(f"Bootstrap Mean Accuracy: {mean_score:.2f}%")
+        print(f"Classification Report:\n", classification_report(Y_test, y_pred))
+        print(f"Bootstrap Mean Accuracy:\n", confusion_matrix(Y_test, y_pred))
+    
+        return mean_score
+    
+
+    def oversample_undersample_knn(self, X, Y, k):
+
+        # Split the data into training and test sets
+        X_train, X_test, y_train, y_test = train_test_split(X, Y, test_size=0.3, random_state=42)
+
+        # Separate the minority and majority classes
+        X_train_minority = X_train[y_train == 1]
+        y_train_minority = y_train[y_train == 1]
+        X_train_majority = X_train[y_train == 0]
+        y_train_majority = y_train[y_train == 0]
+
+        # Oversample the minority class
+        X_train_minority_oversampled, y_train_minority_oversampled = resample(
+            X_train_minority, y_train_minority, 
+            replace=True, # sample with replacement
+            n_samples=len(X_train_majority), # to match the majority class
+            random_state=42
+        )
+
+        # Combine oversampled minority class with majority class
+        X_train_balanced = np.vstack((X_train_majority, X_train_minority_oversampled))
+        y_train_balanced = np.hstack((y_train_majority, y_train_minority_oversampled))
+
+        # Train the KNN classifier on oversampled data
+        knn_oversampled = KNeighborsClassifier(n_neighbors=k)
+        knn_oversampled.fit(X_train_balanced, y_train_balanced)
+        y_pred_oversampled = knn_oversampled.predict(X_test)
+
+
+
+        acc_oversampled=accuracy_score(y_test, y_pred_oversampled)
+
+        print("Accuracy:", acc_oversampled*100)
+
+        print("Classification Report (Oversampled):\n", classification_report(y_test, y_pred_oversampled))
+        print("Confusion Matrix (Oversampled):\n", confusion_matrix(y_test, y_pred_oversampled))
+
+
+        # Undersample the majority class
+        X_train_majority_undersampled, y_train_majority_undersampled = resample(
+            X_train_majority, y_train_majority, 
+            replace=False, # sample without replacement
+            n_samples=len(X_train_minority), # to match the minority class
+            random_state=42
+        )
+
+        # Combine undersampled majority class with minority class
+        X_train_balanced = np.vstack((X_train_majority_undersampled, X_train_minority))
+        y_train_balanced = np.hstack((y_train_majority_undersampled, y_train_minority))
+
+        # Train the KNN classifier on undersampled data
+        knn_undersampled = KNeighborsClassifier(n_neighbors=5)
+        knn_undersampled.fit(X_train_balanced, y_train_balanced)
+        y_pred_undersampled = knn_undersampled.predict(X_test)
+
+
+        acc_undersampled=accuracy_score(y_test, y_pred_undersampled)
+
+        print("Accuracy:", acc_undersampled*100)
+
+        print("Classification Report (Oversampled):\n", classification_report(y_test, y_pred_undersampled))
+        print("Confusion Matrix (Oversampled):\n", confusion_matrix(y_test, y_pred_undersampled))
+        return acc_oversampled, acc_undersampled
+    
+
+  
+    #----------Naive_bayes--------
+    def NB_function(self, X, Y):
+        X_train, X_test, y_train, y_test = train_test_split(X, Y, test_size=0.3, random_state=42)
+        gnb= GaussianNB()
+        gnb.fit(X_train, y_train)
+        Y_pred=gnb.predict(X_test)
+        acc = accuracy_score (y_test, Y_pred)
+        print("Accuracy:", acc*100)
+        print("\nClassification Report:\n", classification_report(y_test, Y_pred))
+        print("\nConfusion Matrix\n", confusion_matrix(y_test, Y_pred))
+
+        return acc
+    
+    def crossValidation_NB(self, X, Y, cv):
+        # Scale the entire feature set
+        scaler = StandardScaler()
+        X_scaled = scaler.fit_transform(X)
+
+        # Perform cross-validation 
+        gnb = GaussianNB()
+        y_pred = cross_val_predict(gnb, X_scaled, Y, cv=cv)
+
+        # Calculate mean accuracy
+        mean_scores = np.mean(cross_val_score(gnb, X_scaled, Y, cv=cv, scoring='accuracy')) * 100
+        print(f"KNN model accuracy with {cv}-fold cross-validation (in %):", mean_scores)
+
+        # Generate and print classification report
+        print("\nClassification Report:\n", classification_report(Y, y_pred))
+        print(f"Confusion Matrix\n", confusion_matrix(Y, y_pred))
+
+        return mean_scores
+        
+    def loo_NB(self, X, Y):
+        # Scale entire feature set
+        scaler = StandardScaler()
+        X_scaled = scaler.fit_transform(X)
+        
+        # Apply Leave-One-Out cross-validation with
+        loo = LeaveOneOut()
+        gnb = GaussianNB()
+
+        scores = cross_val_score(gnb, X_scaled, Y, cv=loo, scoring='accuracy')
+        Y_pred= cross_val_predict(gnb, X_scaled, Y, cv=loo)
+
+
+        mean_scores = np.mean(scores) * 100
+        print(f"K nearest Neighbors model accuracy with leave-one-out cross-validation (in %):", mean_scores)
+        print(f"Classification report:\n", classification_report(Y, Y_pred))
+        print(f"Confusion Matrix\n", confusion_matrix(Y, Y_pred))
+        return mean_scores
+    
+    def bootstrap_NB(self, X_train, Y_train, X_test, Y_test, n):
+        scores = []
+        
+        # Scale train and test sets
+        scaler = StandardScaler()
+        X_train_scaled = scaler.fit_transform(X_train)
+        X_test_scaled = scaler.transform(X_test)
+        
+        # Initialize K-Nearest Neighbors model
+        gnb = GaussianNB()
+        gnb.fit(X_train_scaled, Y_train)
+        y_pred = gnb.predict(X_test)
+
+        # Perform bootstrapping 
+        for _ in range(n):
+            X_bs, y_bs = resample(X_train_scaled, Y_train)
+            gnb.fit(X_bs, y_bs)
+            score = gnb.score(X_test_scaled, Y_test)
+            scores.append(score)
+            
+        mean_score = np.mean(scores) * 100
+        print(f"Bootstrap Mean Accuracy: {mean_score:.2f}%")
+        print(f"Classification Report:\n", classification_report(Y_test, y_pred))
+        print(f"Bootstrap Mean Accuracy:\n", confusion_matrix(Y_test, y_pred))
+    
+        return mean_score
+    
+    def oversample_undersample_NB(self, X, Y, k):
+        
+        # Split the data into training and test sets
+        X_train, X_test, y_train, y_test = train_test_split(X, Y, test_size=0.3, random_state=42)
+
+        # Separate the minority and majority classes
+        X_train_minority = X_train[y_train == 1]
+        y_train_minority = y_train[y_train == 1]
+        X_train_majority = X_train[y_train == 0]
+        y_train_majority = y_train[y_train == 0]
+
+        # Oversample the minority class
+        X_train_minority_oversampled, y_train_minority_oversampled = resample(
+            X_train_minority, y_train_minority, 
+            replace=True, # sample with replacement
+            n_samples=len(X_train_majority), # to match the majority class
+            random_state=42
+        )
+
+        # Combine oversampled minority class with majority class
+        X_train_balanced = np.vstack((X_train_majority, X_train_minority_oversampled))
+        y_train_balanced = np.hstack((y_train_majority, y_train_minority_oversampled))
+
+        # Train the oversampled data
+        gnb_oversampled = KNeighborsClassifier(n_neighbors=k)
+        gnb_oversampled.fit(X_train_balanced, y_train_balanced)
+        y_pred_oversampled = gnb_oversampled.predict(X_test)
+
+
+
+        acc_oversampled=accuracy_score(y_test, y_pred_oversampled)
+
+        print("Accuracy:", acc_oversampled*100)
+
+        print("Classification Report (Oversampled):\n", classification_report(y_test, y_pred_oversampled))
+        print("Confusion Matrix (Oversampled):\n", confusion_matrix(y_test, y_pred_oversampled))
+
+
+        # Undersample the majority class
+        X_train_majority_undersampled, y_train_majority_undersampled = resample(
+            X_train_majority, y_train_majority, 
+            replace=False, # sample without replacement
+            n_samples=len(X_train_minority), # to match the minority class
+            random_state=42
+        )
+
+        # Combine undersampled majority class with minority class
+        X_train_balanced = np.vstack((X_train_majority_undersampled, X_train_minority))
+        y_train_balanced = np.hstack((y_train_majority_undersampled, y_train_minority))
+
+        # Train theclassifier on undersampled data
+        gnb_undersampled = KNeighborsClassifier(n_neighbors=5)
+        gnb_undersampled.fit(X_train_balanced, y_train_balanced)
+        y_pred_undersampled = gnb_undersampled.predict(X_test)
+
+
+        acc_undersampled=accuracy_score(y_test, y_pred_undersampled)
+
+        print("Accuracy:", acc_undersampled*100)
+
+        print("Classification Report (Oversampled):\n", classification_report(y_test, y_pred_undersampled))
+        print("Confusion Matrix (Oversampled):\n", confusion_matrix(y_test, y_pred_undersampled))
+        return acc_oversampled, acc_undersampled
+      
+    
+    #----------SVM---------
+
+    def support_vector_machine(self, X, Y):
+        return
+    
+    def crossValidation_SVM(self, X, Y, cv):
+        return
+        
+    def loo_SVM(self, X, Y, k):
+        return
+    
+    def oversample_undersample_SVM(self, X, Y, k):
+        return
+      
+    def bootstrap_SVM(self, X, Y, k):
+        return
+    
+    #-----------Decision Tree---------
+
+    def DecisionTree(self, X, Y):
+        return
+    
+    def crossValidation_DT(self, X, Y, cv):
+        return
+        
+    def loo_DT(self, X, Y, k):
+        return
+    
+    def oversample_undersample_Dt(self, X, Y, k):
+        return
+
     
     def FunctionChisq(self, inpData, TargetVariable, CategoricalVariablesList):
         from scipy.stats import chi2_contingency
