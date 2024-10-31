@@ -284,7 +284,7 @@ class Algoritmos:
     
         return mean_score
     
-    def oversample_undersample_NB(self, X, Y, k):
+    def oversample_undersample_NB(self, X, Y):
         
         # Split the data into training and test sets
         X_train, X_test, y_train, y_test = train_test_split(X, Y, test_size=0.3, random_state=42)
@@ -308,7 +308,7 @@ class Algoritmos:
         y_train_balanced = np.hstack((y_train_majority, y_train_minority_oversampled))
 
         # Train the oversampled data
-        gnb_oversampled = KNeighborsClassifier(n_neighbors=k)
+        gnb_oversampled = KNeighborsClassifier()
         gnb_oversampled.fit(X_train_balanced, y_train_balanced)
         y_pred_oversampled = gnb_oversampled.predict(X_test)
 
@@ -344,8 +344,8 @@ class Algoritmos:
 
         print("Accuracy:", acc_undersampled*100)
 
-        print("Classification Report (Oversampled):\n", classification_report(y_test, y_pred_undersampled))
-        print("Confusion Matrix (Oversampled):\n", confusion_matrix(y_test, y_pred_undersampled))
+        print("Classification Report (Undersampled):\n", classification_report(y_test, y_pred_undersampled))
+        print("Confusion Matrix (Undersampled):\n", confusion_matrix(y_test, y_pred_undersampled))
         return acc_oversampled, acc_undersampled
       
     
