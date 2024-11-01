@@ -6,7 +6,7 @@ from sklearn.naive_bayes import GaussianNB
 from sklearn.model_selection import train_test_split, cross_val_predict, LeaveOneOut
 from sklearn.metrics import accuracy_score, classification_report
 import matplotlib.pyplot as plt
-
+from sklearn.tree import DecisionTreeClassifier
 from sklearn.metrics import accuracy_score, classification_report, confusion_matrix
 import matplotlib.pyplot as plt
 from sklearn.preprocessing import StandardScaler
@@ -57,7 +57,7 @@ class Algoritmos:
 
     def knn_function(self, X, Y, k):
         # Splitting the dataset into training and testing sets
-        X_train, X_test, y_train, y_test = train_test_split(X, Y, test_size=0.2, random_state=42, stratify=Y)
+        X_train, X_test, y_train, y_test = train_test_split(X, Y, test_size=0.3, random_state=42, stratify=Y)
 
         # Creating the KNN classifier
         knn = KNeighborsClassifier(n_neighbors=k)
@@ -351,36 +351,309 @@ class Algoritmos:
     
     #----------SVM---------
 
-    def support_vector_machine(self, X, Y):
-        return
+    def svc_function(self, X, Y):
+        # Splitting the dataset into training and testing sets
+        X_train, X_test, y_train, y_test = train_test_split(X, Y, test_size=0.3, random_state=42, stratify=Y)
+
+        # Creating the svc classifier
+        scv = SVC(kernel='linear', max_iter=1000)
+
+        # Fitting the model
+        scv.fit(X_train, y_train)
+
+        # Making predictions
+        y_pred = scv.predict(X_test)
+        acc=accuracy_score(y_test, y_pred)
+        # Evaluating the model
+        print("Accuracy:", acc*100)
+        print("\nClassification Report:\n", classification_report(y_test, y_pred))
+        print("\nConfusion Matrix", confusion_matrix(y_test, y_pred))
+
+
+    def crossValidation_svc(self, X, Y, cv):
+        # Scale the entire feature set
+        scaler = StandardScaler()
+        X_scaled = scaler.fit_transform(X)
+
+        # Perform cross-validation with scv and get predictions
+        scv = SVC(kernel='linear', max_iter=1000)
+        y_pred = cross_val_predict(scv, X_scaled, Y, cv=cv)
+
+        # Calculate mean accuracy
+        mean_scores = np.mean(cross_val_score(scv, X_scaled, Y, cv=cv, scoring='accuracy')) * 100
+        print(f"KNN model accuracy with {cv}-fold cross-validation (in %):", mean_scores)
+
+        # Generate and print classification report
+        print("\nClassification Report:\n", classification_report(Y, y_pred))
+        print(f"Confusion Matrix\n", confusion_matrix(Y, y_pred))
+        return mean_scores
     
-    def crossValidation_SVM(self, X, Y, cv):
-        return
+    def loo_scv(self, X, Y):
+
+        # Scale entire feature set
+        scaler = StandardScaler()
+        X_scaled = scaler.fit_transform(X)
         
-    def loo_SVM(self, X, Y, k):
-        return
+        # Apply Leave-One-Out cross-validation with
+        loo = LeaveOneOut()
+        scv = SVC(kernel='linear', max_iter=1000)
+
+        scores = cross_val_score(scv, X_scaled, Y, cv=loo, scoring='accuracy')
+        Y_pred= cross_val_predict(scv, X_scaled, Y, cv=loo)
+
+
+        mean_scores = np.mean(scores) * 100
+        print(f"K nearest Neighbors model accuracy with leave-one-out cross-validation (in %):", mean_scores)
+        print(f"Classification report:\n", classification_report(Y, Y_pred))
+        print(f"Confusion Matrix: \n", confusion_matrix(Y, Y_pred))
+
+        return mean_scores
     
-    def oversample_undersample_SVM(self, X, Y, k):
-        return
+    def bootstrap_scv(self, X_train, Y_train, X_test, Y_test, n):
+        scores = []
+        
+        # Scale train and test sets
+        scaler = StandardScaler()
+        X_train_scaled = scaler.fit_transform(X_train)
+        X_test_scaled = scaler.transform(X_test)
+        
+        # Initialize scv model
+        scv = SVC(kernel='linear', max_iter=1000)
+        scv.fit(X_train_scaled, Y_train)
+        y_pred = scv.predict(X_test)
+
+        # Perform bootstrapping with scv
+        for _ in range(n):
+            X_bs, y_bs = resample(X_train_scaled, Y_train)
+            scv.fit(X_bs, y_bs)
+            score = scv.score(X_test_scaled, Y_test)
+            scores.append(score)
+            
+        mean_score = np.mean(scores) * 100
+        print(f"Bootstrap Mean Accuracy: {mean_score:.2f}%")
+        print(f"Classification Report:\n", classification_report(Y_test, y_pred))
+        print(f"Bootstrap Mean Accuracy:\n", confusion_matrix(Y_test, y_pred))
+    
+        return mean_score
+    
+
+    def oversample_undersample_scv(self, X, Y):
+
+        # Split the data into training and test sets
+        X_train, X_test, y_train, y_test = train_test_split(X, Y, test_size=0.3, random_state=42)
+
+        # Separate the minority and majority classes
+        X_train_minority = X_train[y_train == 1]
+        y_train_minority = y_train[y_train == 1]
+        X_train_majority = X_train[y_train == 0]
+        y_train_majority = y_train[y_train == 0]
+
+        # Oversample the minority class
+        X_train_minority_oversampled, y_train_minority_oversampled = resample(
+            X_train_minority, y_train_minority, 
+            replace=True, # sample with replacement
+            n_samples=len(X_train_majority), # to match the majority class
+            random_state=42
+        )
+
+        # Combine oversampled minority class with majority class
+        X_train_balanced = np.vstack((X_train_majority, X_train_minority_oversampled))
+        y_train_balanced = np.hstack((y_train_majority, y_train_minority_oversampled))
+
+        # Train the scv classifier on oversampled data
+        scv_oversampled = SVC(kernel='linear', max_iter=1000)
+        scv_oversampled.fit(X_train_balanced, y_train_balanced)
+        y_pred_oversampled = scv_oversampled.predict(X_test)
+
+
+
+        acc_oversampled=accuracy_score(y_test, y_pred_oversampled)
+
+        print("Accuracy:", acc_oversampled*100)
+
+        print("Classification Report (Oversampled):\n", classification_report(y_test, y_pred_oversampled))
+        print("Confusion Matrix (Oversampled):\n", confusion_matrix(y_test, y_pred_oversampled))
+
+
+        # Undersample the majority class
+        X_train_majority_undersampled, y_train_majority_undersampled = resample(
+            X_train_majority, y_train_majority, 
+            replace=False, # sample without replacement
+            n_samples=len(X_train_minority), # to match the minority class
+            random_state=42
+        )
+
+        # Combine undersampled majority class with minority class
+        X_train_balanced = np.vstack((X_train_majority_undersampled, X_train_minority))
+        y_train_balanced = np.hstack((y_train_majority_undersampled, y_train_minority))
+
+        # Train the scv classifier on undersampled data
+        scv_undersampled = SVC(kernel='linear', max_iter=1000)
+        scv_undersampled.fit(X_train_balanced, y_train_balanced)
+        y_pred_undersampled = scv_undersampled.predict(X_test)
+
+
+        acc_undersampled=accuracy_score(y_test, y_pred_undersampled)
+
+        print("Accuracy:", acc_undersampled*100)
+
+        print("Classification Report (Oversampled):\n", classification_report(y_test, y_pred_undersampled))
+        print("Confusion Matrix (Oversampled):\n", confusion_matrix(y_test, y_pred_undersampled))
+        return acc_oversampled, acc_undersampled
+    
+
       
-    def bootstrap_SVM(self, X, Y, k):
-        return
-    
     #-----------Decision Tree---------
 
-    def DecisionTree(self, X, Y):
-        return
-    
-    def crossValidation_DT(self, X, Y, cv):
-        return
-        
-    def loo_DT(self, X, Y, k):
-        return
-    
-    def oversample_undersample_Dt(self, X, Y, k):
-        return
+    def dt_function(self, X, Y):
+        X_train, X_test, y_train, y_test = train_test_split(X, Y, test_size=0.3, random_state=42, stratify=Y)
 
+        dt = DecisionTreeClassifier(criterion='gini',max_depth=10, min_samples_split=50, min_samples_leaf=25, random_state=42)
+        dt.fit(X_train, y_train)
+
+        y_pred = dt.predict(X_test)
+        acc=accuracy_score(y_test, y_pred)
+
+        print("Accuracy:", acc*100)
+        print("\nClassification Report:\n", classification_report(y_test, y_pred))
+        print("\nConfusion Matrix", confusion_matrix(y_test, y_pred))
+
+
+    def crossValidation_dt(self, X, Y, cv):
+        # Scale the entire feature set
+        scaler = StandardScaler()
+        X_scaled = scaler.fit_transform(X)
+
+        # Perform cross-validation with scv and get predictions
+        dt = DecisionTreeClassifier(criterion='gini',max_depth=10, min_samples_split=50, min_samples_leaf=25, random_state=42)
+        y_pred = cross_val_predict(dt, X_scaled, Y, cv=cv)
+
+        # Calculate mean accuracy
+        mean_scores = np.mean(cross_val_score(dt, X_scaled, Y, cv=cv, scoring='accuracy')) * 100
+        print(f"KNN model accuracy with {cv}-fold cross-validation (in %):", mean_scores)
+
+        # Generate and print classification report
+        print("\nClassification Report:\n", classification_report(Y, y_pred))
+        print(f"Confusion Matrix\n", confusion_matrix(Y, y_pred))
+        return mean_scores
     
+    def loo_dt(self, X, Y):
+
+        # Scale entire feature set
+        scaler = StandardScaler()
+        X_scaled = scaler.fit_transform(X)
+        
+        # Apply Leave-One-Out cross-validation with
+        loo = LeaveOneOut()
+        dt = DecisionTreeClassifier(criterion='gini',max_depth=10, min_samples_split=50, min_samples_leaf=25, random_state=42)
+
+
+        scores = cross_val_score(dt, X_scaled, Y, cv=loo, scoring='accuracy')
+        Y_pred= cross_val_predict(dt, X_scaled, Y, cv=loo)
+
+
+        mean_scores = np.mean(scores) * 100
+        print(f"K nearest Neighbors model accuracy with leave-one-out cross-validation (in %):", mean_scores)
+        print(f"Classification report:\n", classification_report(Y, Y_pred))
+        print(f"Confusion Matrix: \n", confusion_matrix(Y, Y_pred))
+
+        return mean_scores
+    
+    def bootstrap_dt(self, X_train, Y_train, X_test, Y_test, n):
+        scores = []
+        
+        # Scale train and test sets
+        scaler = StandardScaler()
+        X_train_scaled = scaler.fit_transform(X_train)
+        X_test_scaled = scaler.transform(X_test)
+        
+        # Initialize dt model
+        dt = DecisionTreeClassifier(criterion='gini',max_depth=10, min_samples_split=50, min_samples_leaf=25, random_state=42)
+
+        dt.fit(X_train_scaled, Y_train)
+        y_pred = dt.predict(X_test)
+
+        # Perform bootstrapping with scv
+        for _ in range(n):
+            X_bs, y_bs = resample(X_train_scaled, Y_train)
+            dt.fit(X_bs, y_bs)
+            score = dt.score(X_test_scaled, Y_test)
+            scores.append(score)
+            
+        mean_score = np.mean(scores) * 100
+        print(f"Bootstrap Mean Accuracy: {mean_score:.2f}%")
+        print(f"Classification Report:\n", classification_report(Y_test, y_pred))
+        print(f"Bootstrap Mean Accuracy:\n", confusion_matrix(Y_test, y_pred))
+    
+        return mean_score
+    
+
+    def oversample_undersample_dt(self, X, Y):
+
+        # Split the data into training and test sets
+        X_train, X_test, y_train, y_test = train_test_split(X, Y, test_size=0.3, random_state=42)
+
+        # Separate the minority and majority classes
+        X_train_minority = X_train[y_train == 1]
+        y_train_minority = y_train[y_train == 1]
+        X_train_majority = X_train[y_train == 0]
+        y_train_majority = y_train[y_train == 0]
+
+        # Oversample the minority class
+        X_train_minority_oversampled, y_train_minority_oversampled = resample(
+            X_train_minority, y_train_minority, 
+            replace=True, # sample with replacement
+            n_samples=len(X_train_majority), # to match the majority class
+            random_state=42
+        )
+
+        # Combine oversampled minority class with majority class
+        X_train_balanced = np.vstack((X_train_majority, X_train_minority_oversampled))
+        y_train_balanced = np.hstack((y_train_majority, y_train_minority_oversampled))
+
+        # Train the scv classifier on oversampled data
+        dt_oversampled = DecisionTreeClassifier(criterion='gini',max_depth=10, min_samples_split=50, min_samples_leaf=25, random_state=42)
+        dt_oversampled.fit(X_train_balanced, y_train_balanced)
+        y_pred_oversampled = dt_oversampled.predict(X_test)
+
+
+
+        acc_oversampled=accuracy_score(y_test, y_pred_oversampled)
+
+        print("Accuracy:", acc_oversampled*100)
+
+        print("Classification Report (Oversampled):\n", classification_report(y_test, y_pred_oversampled))
+        print("Confusion Matrix (Oversampled):\n", confusion_matrix(y_test, y_pred_oversampled))
+
+
+        # Undersample the majority class
+        X_train_majority_undersampled, y_train_majority_undersampled = resample(
+            X_train_majority, y_train_majority, 
+            replace=False, # sample without replacement
+            n_samples=len(X_train_minority), # to match the minority class
+            random_state=42
+        )
+
+        # Combine undersampled majority class with minority class
+        X_train_balanced = np.vstack((X_train_majority_undersampled, X_train_minority))
+        y_train_balanced = np.hstack((y_train_majority_undersampled, y_train_minority))
+
+        # Train the scv classifier on undersampled data
+        dt_undersampled = DecisionTreeClassifier(criterion='gini',max_depth=10, min_samples_split=50, min_samples_leaf=25, random_state=42)
+
+        dt_undersampled.fit(X_train_balanced, y_train_balanced)
+        y_pred_undersampled = dt_undersampled.predict(X_test)
+
+
+        acc_undersampled=accuracy_score(y_test, y_pred_undersampled)
+
+        print("Accuracy:", acc_undersampled*100)
+
+        print("Classification Report (Oversampled):\n", classification_report(y_test, y_pred_undersampled))
+        print("Confusion Matrix (Oversampled):\n", confusion_matrix(y_test, y_pred_undersampled))
+        return acc_oversampled, acc_undersampled
+    
+
     def FunctionChisq(self, inpData, TargetVariable, CategoricalVariablesList):
         from scipy.stats import chi2_contingency
         
@@ -424,7 +697,7 @@ class Algoritmos:
         
     def lasso_regularization(self, X, Y):
     
-        X_train, X_test, y_train, y_test = train_test_split(X, Y, test_size=0.2, random_state=42, stratify=Y)
+        X_train, X_test, y_train, y_test = train_test_split(X, Y, test_size=0.3, random_state=42, stratify=Y)
     
         scaler = StandardScaler()
         scaler.fit(X_train)
@@ -464,7 +737,7 @@ class Algoritmos:
 
 def majority_voting_classifiers(X, Y, classifiers, cv=5):
     # Split the data into training and testing sets
-    X_train, X_test, y_train, y_test = train_test_split(X, Y, test_size=0.2, random_state=42, stratify=Y)
+    X_train, X_test, y_train, y_test = train_test_split(X, Y, test_size=0.3, random_state=42, stratify=Y)
 
     # Create a VotingClassifier with the provided classifiers
     voting_clf = VotingClassifier(estimators=classifiers, voting='hard')
@@ -499,7 +772,7 @@ def majority_voting_classifiers(X, Y, classifiers, cv=5):
 
     return mean_scores
 #----------------------------------------------------------------------------------
-def weighted_majority_voting_classifiers(X, Y, classifiers, test_size=0.2):
+def weighted_majority_voting_classifiers(X, Y, classifiers, test_size=0.3):
     # Split the data into training and testing sets
     X_train, X_test, y_train, y_test = train_test_split(X, Y, test_size=test_size, random_state=42, stratify=Y)
 
@@ -522,7 +795,7 @@ def weighted_majority_voting_classifiers(X, Y, classifiers, test_size=0.2):
 
     return accuracy
 #----------------------------------------------------------------------------------
-def stacking_logistic_regression(X, Y, base_classifiers, test_size=0.2):
+def stacking_logistic_regression(X, Y, base_classifiers, test_size=0.3):
     # Split the data into training and testing sets
     X_train, X_test, y_train, y_test = train_test_split(X, Y, test_size=test_size, random_state=42, stratify=Y)
 
@@ -554,7 +827,7 @@ def stacking_logistic_regression(X, Y, base_classifiers, test_size=0.2):
 
     return accuracy
 #----------------------------------------------------------------------------------
-def stacking_svc(X, Y, base_classifiers, test_size=0.2):
+def stacking_svc(X, Y, base_classifiers, test_size=0.3):
     # Split the data into training and testing sets
     X_train, X_test, y_train, y_test = train_test_split(X, Y, test_size=test_size, random_state=42, stratify=Y)
 
@@ -586,7 +859,7 @@ def stacking_svc(X, Y, base_classifiers, test_size=0.2):
 
     return accuracy
 #----------------------------------------------------------------------------------
-def bagging_classifier(X, Y, base_classifier, n_estimators=10, test_size=0.2):
+def bagging_classifier(X, Y, base_classifier, n_estimators=10, test_size=0.3):
 
     # Split the data into training and testing sets
     X_train, X_test, y_train, y_test = train_test_split(X, Y, test_size=test_size, random_state=42, stratify=Y)
