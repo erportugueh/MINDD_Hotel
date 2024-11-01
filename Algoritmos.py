@@ -15,10 +15,12 @@ from sklearn.utils import resample
 from sklearn.feature_selection import SelectFromModel
 from sklearn.model_selection import train_test_split, cross_val_score
 from sklearn.neighbors import KNeighborsClassifier
-from sklearn.ensemble import VotingClassifier
+from sklearn.ensemble import VotingClassifier, GradientBoostingClassifier, AdaBoostClassifier
 from sklearn.svm import SVC
 from sklearn.ensemble import BaggingClassifier
 from sklearn.ensemble import RandomForestClassifier
+from xgboost import XGBClassifier
+from lightgbm import LGBMClassifier
     
 
 class Algoritmos:
@@ -838,7 +840,7 @@ def stacking_svc(X, Y, base_classifiers, test_size=0.3):
         base_predictions[:, i] = clf.predict(X_train)
 
     # Train the meta-classifier (SVM) on the predictions of base classifiers
-    meta_clf = SVC()
+    meta_clf = SVC(kernel='linear')
     meta_clf.fit(base_predictions, y_train)
 
     # Get predictions from base classifiers on the test set
@@ -883,6 +885,98 @@ def bagging_classifier(X, Y, base_classifier, n_estimators=10, test_size=0.3):
 
     return accuracy
 #----------------------------------------------------------------------------------
+def boosting_adaboosting(X, Y, base_classifier, n_estimators=50, test_size=0.3):
+    # Split the data into training and testing sets
+    X_train, X_test, y_train, y_test = train_test_split(X, Y, test_size=test_size, random_state=42, stratify=Y)
 
+    # Create an AdaBoostClassifier with the provided base classifier
+    adaboost_clf = AdaBoostClassifier(estimator=base_classifier, n_estimators=n_estimators, random_state=42)
 
+    # Train the AdaBoostClassifier
+    adaboost_clf.fit(X_train, y_train)
+
+    # Make predictions
+    y_pred = adaboost_clf.predict(X_test)
+
+    # Evaluate the classifier
+    accuracy = accuracy_score(y_test, y_pred)
+    report = classification_report(y_test, y_pred)
+
+    print(f"Accuracy: {accuracy}")
+    print("Classification Report:")
+    print(report)
+
+    return accuracy
+#--------------------------------------------------------------------------------
+def boosting_gradient_boosting(X, Y, n_estimators=100, test_size=0.3):
+
+    # Split the data into training and testing sets
+    X_train, X_test, y_train, y_test = train_test_split(X, Y, test_size=test_size, random_state=42, stratify=Y)
+
+    # Create a GradientBoostingClassifier
+    gb_clf = GradientBoostingClassifier(n_estimators=n_estimators, random_state=42)
+
+    # Train the GradientBoostingClassifier
+    gb_clf.fit(X_train, y_train)
+
+    # Make predictions
+    y_pred = gb_clf.predict(X_test)
+
+    # Evaluate the classifier
+    accuracy = accuracy_score(y_test, y_pred)
+    report = classification_report(y_test, y_pred)
+
+    print(f"Accuracy: {accuracy}")
+    print("Classification Report:")
+    print(report)
+
+    return accuracy
+#--------------------------------------------------------------------------------
+def boosting_xgboost(X, Y, n_estimators=100, test_size=0.3):
+
+    # Split the data into training and testing sets
+    X_train, X_test, y_train, y_test = train_test_split(X, Y, test_size=test_size, random_state=42, stratify=Y)
+
+    # Create an XGBClassifier
+    xgb_clf = XGBClassifier(n_estimators=n_estimators, random_state=42)
+
+    # Train the XGBClassifier
+    xgb_clf.fit(X_train, y_train)
+
+    # Make predictions
+    y_pred = xgb_clf.predict(X_test)
+
+    # Evaluate the classifier
+    accuracy = accuracy_score(y_test, y_pred)
+    report = classification_report(y_test, y_pred)
+
+    print(f"Accuracy: {accuracy}")
+    print("Classification Report:")
+    print(report)
+
+    return accuracy
+#--------------------------------------------------------------------------------
+def boosting_lightgbm(X, Y, n_estimators=100, test_size=0.3):
+
+    # Split the data into training and testing sets
+    X_train, X_test, y_train, y_test = train_test_split(X, Y, test_size=test_size, random_state=42, stratify=Y)
+
+    # Create a LGBMClassifier
+    lgbm_clf = LGBMClassifier(n_estimators=n_estimators, random_state=42)
+
+    # Train the LGBMClassifier
+    lgbm_clf.fit(X_train, y_train)
+
+    # Make predictions
+    y_pred = lgbm_clf.predict(X_test)
+
+    # Evaluate the classifier
+    accuracy = accuracy_score(y_test, y_pred)
+    report = classification_report(y_test, y_pred)
+
+    print(f"Accuracy: {accuracy}")
+    print("Classification Report:")
+    print(report)
+
+    return accuracy
     
