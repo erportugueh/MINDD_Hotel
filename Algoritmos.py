@@ -5,6 +5,7 @@ import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
 import scipy as sp
+from lightgbm import LGBMClassifier
 
 # Machine Learning and Model Selection
 from sklearn.model_selection import (
@@ -27,12 +28,7 @@ from sklearn.ensemble import (
     GradientBoostingClassifier, AdaBoostClassifier
 )
 from xgboost import XGBClassifier
-from lightgbm import LGBMClassifier
 
-# Neural Networks
-from keras.models import Sequential
-from keras.layers import Dense
-import tensorflow as tf
 os.environ['TF_CPP_MIN_LOG_LEVEL'] = '2'  # Suppress TensorFlow warnings
 
 # Metrics
@@ -95,6 +91,7 @@ class Algoritmos:
         print("Accuracy:", acc*100)
         print("\nClassification Report:\n", classification_report(y_test, y_pred))
         print("\nConfusion Matrix", confusion_matrix(y_test, y_pred))
+        return knn
 
 
     def crossValidation_knn(self, X, Y, cv, k):
@@ -113,7 +110,7 @@ class Algoritmos:
         # Generate and print classification report
         print("\nClassification Report:\n", classification_report(Y, y_pred))
         print(f"Confusion Matrix\n", confusion_matrix(Y, y_pred))
-        return mean_scores
+        return mean_scores, knn
     def loo_knn(self, X, Y, k):
 
         # Scale entire feature set
@@ -133,7 +130,7 @@ class Algoritmos:
         print(f"Classification report:\n", classification_report(Y, Y_pred))
         print(f"Confusion Matrix: \n", confusion_matrix(Y, Y_pred))
 
-        return mean_scores
+        return mean_scores, knn
     
     def bootstrap_knn(self, X_train, Y_train, X_test, Y_test, n, k):
         scores = []
@@ -160,7 +157,7 @@ class Algoritmos:
         print(f"Classification Report:\n", classification_report(Y_test, y_pred))
         print(f"Bootstrap Mean Accuracy:\n", confusion_matrix(Y_test, y_pred))
     
-        return mean_score
+        return mean_score, knn
     
 
     def oversample_undersample_knn(self, X, Y, k):
@@ -225,7 +222,7 @@ class Algoritmos:
 
         print("Classification Report (Oversampled):\n", classification_report(y_test, y_pred_undersampled))
         print("Confusion Matrix (Oversampled):\n", confusion_matrix(y_test, y_pred_undersampled))
-        return acc_oversampled, acc_undersampled
+        return acc_oversampled, acc_undersampled, knn_oversampled, knn_undersampled
     
 
   
@@ -240,7 +237,7 @@ class Algoritmos:
         print("\nClassification Report:\n", classification_report(y_test, Y_pred))
         print("\nConfusion Matrix\n", confusion_matrix(y_test, Y_pred))
 
-        return acc
+        return acc, gnb
     
     def crossValidation_NB(self, X, Y, cv):
         # Scale the entire feature set
@@ -259,7 +256,7 @@ class Algoritmos:
         print("\nClassification Report:\n", classification_report(Y, y_pred))
         print(f"Confusion Matrix\n", confusion_matrix(Y, y_pred))
 
-        return mean_scores
+        return mean_scores, gnb
         
     def loo_NB(self, X, Y):
         # Scale entire feature set
@@ -278,7 +275,7 @@ class Algoritmos:
         print(f"K nearest Neighbors model accuracy with leave-one-out cross-validation (in %):", mean_scores)
         print(f"Classification report:\n", classification_report(Y, Y_pred))
         print(f"Confusion Matrix\n", confusion_matrix(Y, Y_pred))
-        return mean_scores
+        return mean_scores, gnb
     
     def bootstrap_NB(self, X_train, Y_train, X_test, Y_test, n):
         scores = []
@@ -305,7 +302,7 @@ class Algoritmos:
         print(f"Classification Report:\n", classification_report(Y_test, y_pred))
         print(f"Bootstrap Mean Accuracy:\n", confusion_matrix(Y_test, y_pred))
     
-        return mean_score
+        return mean_score, gnb
     
     def oversample_undersample_NB(self, X, Y):
         
@@ -369,7 +366,7 @@ class Algoritmos:
 
         print("Classification Report (Undersampled):\n", classification_report(y_test, y_pred_undersampled))
         print("Confusion Matrix (Undersampled):\n", confusion_matrix(y_test, y_pred_undersampled))
-        return acc_oversampled, acc_undersampled
+        return acc_oversampled, acc_undersampled, gnb_oversampled, gnb_undersampled
       
     
     #----------SVM---------
@@ -391,6 +388,7 @@ class Algoritmos:
         print("Accuracy:", acc*100)
         print("\nClassification Report:\n", classification_report(y_test, y_pred))
         print("\nConfusion Matrix", confusion_matrix(y_test, y_pred))
+        return scv
 
 
     def crossValidation_svc(self, X, Y, cv):
@@ -409,7 +407,7 @@ class Algoritmos:
         # Generate and print classification report
         print("\nClassification Report:\n", classification_report(Y, y_pred))
         print(f"Confusion Matrix\n", confusion_matrix(Y, y_pred))
-        return mean_scores
+        return mean_scores, scv
     
     def loo_scv(self, X, Y):
 
@@ -430,7 +428,7 @@ class Algoritmos:
         print(f"Classification report:\n", classification_report(Y, Y_pred))
         print(f"Confusion Matrix: \n", confusion_matrix(Y, Y_pred))
 
-        return mean_scores
+        return mean_scores, scv
     
     def bootstrap_scv(self, X_train, Y_train, X_test, Y_test, n):
         scores = []
@@ -457,7 +455,7 @@ class Algoritmos:
         print(f"Classification Report:\n", classification_report(Y_test, y_pred))
         print(f"Bootstrap Mean Accuracy:\n", confusion_matrix(Y_test, y_pred))
     
-        return mean_score
+        return mean_score, scv
     
 
     def oversample_undersample_scv(self, X, Y):
@@ -522,7 +520,7 @@ class Algoritmos:
 
         print("Classification Report (Oversampled):\n", classification_report(y_test, y_pred_undersampled))
         print("Confusion Matrix (Oversampled):\n", confusion_matrix(y_test, y_pred_undersampled))
-        return acc_oversampled, acc_undersampled
+        return acc_oversampled, acc_undersampled, scv_oversampled, scv_undersampled
     
 
       
@@ -540,6 +538,7 @@ class Algoritmos:
         print("Accuracy:", acc*100)
         print("\nClassification Report:\n", classification_report(y_test, y_pred))
         print("\nConfusion Matrix", confusion_matrix(y_test, y_pred))
+        return dt
 
 
     def crossValidation_dt(self, X, Y, cv):
@@ -558,7 +557,7 @@ class Algoritmos:
         # Generate and print classification report
         print("\nClassification Report:\n", classification_report(Y, y_pred))
         print(f"Confusion Matrix\n", confusion_matrix(Y, y_pred))
-        return mean_scores
+        return mean_scores, dt
     
     def loo_dt(self, X, Y):
 
@@ -580,7 +579,7 @@ class Algoritmos:
         print(f"Classification report:\n", classification_report(Y, Y_pred))
         print(f"Confusion Matrix: \n", confusion_matrix(Y, Y_pred))
 
-        return mean_scores
+        return mean_scores, dt
     
     def bootstrap_dt(self, X_train, Y_train, X_test, Y_test, n):
         scores = []
@@ -608,7 +607,7 @@ class Algoritmos:
         print(f"Classification Report:\n", classification_report(Y_test, y_pred))
         print(f"Bootstrap Mean Accuracy:\n", confusion_matrix(Y_test, y_pred))
     
-        return mean_score
+        return mean_score, dt
     
 
     def oversample_undersample_dt(self, X, Y):
@@ -674,7 +673,7 @@ class Algoritmos:
 
         print("Classification Report (Oversampled):\n", classification_report(y_test, y_pred_undersampled))
         print("Confusion Matrix (Oversampled):\n", confusion_matrix(y_test, y_pred_undersampled))
-        return acc_oversampled, acc_undersampled
+        return acc_oversampled, acc_undersampled, dt_oversampled, dt_undersampled
     
 
     def FunctionChisq(self, inpData, TargetVariable, CategoricalVariablesList):
