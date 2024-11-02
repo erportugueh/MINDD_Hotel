@@ -1,27 +1,48 @@
-import pandas as pd
+# Essentials
+import os
+import warnings
 import numpy as np
+import pandas as pd
+import matplotlib.pyplot as plt
 import scipy as sp
-from sklearn.datasets import make_blobs
-from sklearn.naive_bayes import GaussianNB
-from sklearn.model_selection import train_test_split, cross_val_predict, LeaveOneOut
-from sklearn.metrics import accuracy_score, classification_report
-import matplotlib.pyplot as plt
-from sklearn.tree import DecisionTreeClassifier
-from sklearn.metrics import accuracy_score, classification_report, confusion_matrix
-import matplotlib.pyplot as plt
-from sklearn.preprocessing import StandardScaler
-from sklearn.linear_model import LogisticRegression
+
+# Machine Learning and Model Selection
+from sklearn.model_selection import (
+    train_test_split, cross_val_score, cross_val_predict, LeaveOneOut
+)
 from sklearn.utils import resample
 from sklearn.feature_selection import SelectFromModel
-from sklearn.model_selection import train_test_split, cross_val_score
+
+# Preprocessing
+from sklearn.preprocessing import StandardScaler, MinMaxScaler
+
+# Classifiers
+from sklearn.naive_bayes import GaussianNB
+from sklearn.tree import DecisionTreeClassifier
+from sklearn.linear_model import LogisticRegression
 from sklearn.neighbors import KNeighborsClassifier
-from sklearn.ensemble import VotingClassifier, GradientBoostingClassifier, AdaBoostClassifier
 from sklearn.svm import SVC
-from sklearn.ensemble import BaggingClassifier
-from sklearn.ensemble import RandomForestClassifier
+from sklearn.ensemble import (
+    VotingClassifier, BaggingClassifier, RandomForestClassifier,
+    GradientBoostingClassifier, AdaBoostClassifier
+)
 from xgboost import XGBClassifier
 from lightgbm import LGBMClassifier
-    
+
+# Neural Networks
+from keras.models import Sequential
+from keras.layers import Dense
+import tensorflow as tf
+os.environ['TF_CPP_MIN_LOG_LEVEL'] = '2'  # Suppress TensorFlow warnings
+
+# Metrics
+from sklearn.metrics import (
+    accuracy_score, classification_report, confusion_matrix
+)
+
+# Set warnings to ignore
+warnings.filterwarnings('ignore')
+
 
 class Algoritmos:
     def determine_best_K(self, X, Y):
@@ -708,7 +729,7 @@ class Algoritmos:
         # select the Lasso (l1) penalty.
         # The selectFromModel class from sklearn, selects the features which coefficients are non-zero
     
-        sel_ = SelectFromModel(LogisticRegression(C=0.5, penalty='l1', solver='liblinear', random_state=10))
+        sel_ = SelectFromModel(LogisticRegression(C=0.1, penalty='l1', solver='liblinear', random_state=10))
     
         sel_.fit(scaler.transform(X_train), y_train)
     
@@ -725,7 +746,33 @@ class Algoritmos:
         
         return X_lasso
 
-
+        # Define function to create the MLP network
+        def nnetClassif(self, inputDim, optimizer, neurons):
+            # Initialize the Sequential model
+            model = Sequential()
+            
+            # Input layer + hidden layer
+            model.add(Dense(units=neurons, 
+                            input_dim=inputDim, 
+                            kernel_initializer='uniform', 
+                            activation='relu'))
+            
+            # Second hidden layer
+            model.add(Dense(units=neurons, 
+                            kernel_initializer='uniform', 
+                            activation='relu'))
+            
+            # Output layer
+            model.add(Dense(units=1, 
+                            kernel_initializer='uniform', 
+                            activation='sigmoid'))
+            
+            # Compile the model
+            model.compile(optimizer=optimizer, 
+                          loss='binary_crossentropy', 
+                          metrics=['accuracy'])
+            
+            return model        
 
 
 
