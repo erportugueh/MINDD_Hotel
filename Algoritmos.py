@@ -238,7 +238,7 @@ class Algoritmos:
         print("\nClassification Report:\n", classification_report(y_test, Y_pred))
         print("\nConfusion Matrix\n", confusion_matrix(y_test, Y_pred))
 
-        return acc, gnb
+        return acc*100, gnb
     
     def crossValidation_NB(self, X, Y, cv):
         # Scale the entire feature set
