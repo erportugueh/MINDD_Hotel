@@ -1,0 +1,51 @@
+Para a elaboração de modelos para um dataset, é necessário primeiro limpar e processar as variáveis para assim ter modelos mais acertados
+
+Numa primeira instância verificamos o data set, a informação basica, como info, describe, colunas, rows
+
+Depois verificamos se existem nulls no dataset e temos como resultado:
+company                           112593
+agent                              16340
+country                              488
+children                               4
+
+Com estes nulls, podemos fazer duas coisas, ou eliminamos completamente, dropna
+Que no caso de company, agent iremos dar drop dessas colunas
+Para children ao ser nulls muito baixos, podemos simplesmente dar fill nessas 4 rows
+Finalmente no country, iremos adicionar o value 'missing'
+
+Aparte dessas colunas elimindas, iremos eliminar mais colunas que no nosso dataset não faz sentido para análise como:
+    'name', 
+    'email', 
+    'phone-number', 
+    'credit_card', 
+
+E finalmente, ao verificar com os dados do dataset, podemos determinar que
+ 'reservation_status', 
+ 'reservation_status_date'
+são falsos predicados, o que indica que irá afetar negativamente ao dataset, pelo que, têm que ser retirados quanto antes
+
+
+Após os nulls e dar drop dessas colunas, fomos verificar o número de duplicados de cada linha
+Podemos determinar que:
+
+Antes de remover duplicadas: 119390 linhas
+Depois de remover duplicadas: 87117 linhas
+
+Foram eliminadas 32 273 linhas do dataset que estavam a ser duplicados de outras linhas
+
+
+De seguido, separamos as colunas em dois tipos
+Categóricas:
+'hotel', 'arrival_date_month', 'meal', 'country', 'market_segment', 'distribution_channel', 'reserved_room_type', 'assigned_room_type', 'deposit_type', 'customer_type', 'origin_reservasion'
+
+Numericas:
+'is_canceled', 'lead_time', 'arrival_date_year', 'arrival_date_week_number', 'arrival_date_day_of_month', 'stays_in_weekend_nights', 'stays_in_week_nights', 'adults', 'children', 'babies', 'is_repeated_guest', 'previous_cancellations', 'previous_bookings_not_canceled', 'booking_changes', 'days_in_waiting_list', 'adr', 'required_car_parking_spaces', 'total_of_special_requests', 'room_type_match'
+
+E finalmente como ultimo passo para o pre-processamento, foram filtrados todos os outliers do dataset, reduzindo assim o dataset, para valores mais acertados para usar em modelos de classificação´
+Neste caso, passaram de existir 87117 linhas a existir, 35102 linhas
+Ou seja foram eliminadas 52015 linhas com outliers significativos, que por sua vez, iriam interferir com os modelos de classificação
+
+Após a remoção destes outliers, utilizou-se o label encoder para transofrmar as variáveis categóricas, em numéricas
+
+
+
