@@ -3,26 +3,32 @@ Redes Neurais
 
 Redes neurais são um conjunto de algoritmos inspirados no funcionamento do cérebro humano, projetados para reconhecer padrões em dados. Elas são compostas por camadas de neurônios, onde cada neurônio atua como uma unidade de processamento. Cada neurônio recebe entradas (dados), aplica uma função de ativação e gera uma saída, que pode ser passada para a próxima camada da rede.
 
-Aplicação no Projeto
-Neste projeto, utilizamos uma rede neural para prever se um cliente que fez uma reserva irá cancelar ou não. Essa previsão é crucial para que o hotel possa gerenciar melhor o fluxo de clientes e otimizar suas operações.
+MLP network
+    Neste projeto, utilizamos uma rede neural para prever se um cliente que fez uma reserva irá cancelar ou não. Essa previsão é crucial para que o hotel possa gerenciar melhor o fluxo de clientes e otimizar suas operações.
+Implementamos uma função que testa diferentes quantidades de neurônios na camada oculta da rede neural, com objetivo de identificar qual configuração oferece a melhor acurácia no conjunto de dados. 
+  
+  Implementação do Modelo
+    1. nnetClassif: Este método constrói uma rede neural simples composta por uma camada de entrada, uma ou mais camadas escondidas e uma camada de saída. A camada escondida desempenha um papel crucial no aprendizado de padrões complexos a partir dos dados de entrada, permitindo que o modelo capture relações não lineares. O número de neurônios nas camadas entrada/escondida estará compreendidos de 1 a 9 durante os testes, o que possibilita avaliar como essa variação afeta o desempenho da rede. A camada de saída possui uma única unidade.
+    2. Otimização Adam: Utilizamos o otimizador Adam, que é uma técnica avançada para atualização de pesos na rede, combinando os benefícios de dois outros métodos populares: AdaGrad e RMSProp. O Adam ajusta automaticamente a taxa de aprendizado durante o treinamento, o que pode melhorar a eficiência e a convergência do modelo.
+    3. Treinamento: O modelo foi treinado por 10 épocas. Cada época refere-se a uma passagem completa pelo conjunto de dados, permitindo que o algoritmo aprenda os padrões. Utilizamos um batch size de 10, o que significa que, a cada passo de treinamento, o modelo usou 10 exemplos para calcular as atualizações dos pesos.
+  
+  Resultados
+    Após a execução do treinamento e a validação do modelo, a configuração que apresentou a melhor acurácia foi a de 6 neurônios na camada oculta, alcançando uma acurácia de 72,51%. Essa métrica indica a proporção de previsões corretas em relação ao total de previsões feitas, sugerindo que o modelo possui um desempenho razoável na tarefa de prever cancelamentos de reservas. Aplicado o mesmo algritmo com as colunas removidas obtemos um resultado melhor, mas não muito diferente, com uma acurácia de 72,76%
 
-Implementação do Modelo
-1. Cálculo do Número de Neurônios: Implementamos uma função que testa diferentes quantidades de neurônios na camada oculta da rede neural para identificar qual configuração oferece a melhor acurácia no conjunto de dados. 
-2. Otimização Adam: Utilizamos o otimizador Adam, que é uma técnica avançada para atualização de pesos na rede, combinando os benefícios de dois outros métodos populares: AdaGrad e RMSProp. O Adam ajusta automaticamente a taxa de aprendizado durante o treinamento, o que pode melhorar a eficiência e a convergência do modelo.
-3. Treinamento: O modelo foi treinado por 10 épocas. Cada época refere-se a uma passagem completa pelo conjunto de dados, permitindo que o algoritmo aprenda os padrões. Utilizamos um batch size de 10, o que significa que, a cada passo de treinamento, o modelo usou 10 exemplos para calcular as atualizações dos pesos.
-
-Resultados
-Após a execução do treinamento e a validação do modelo, a configuração que apresentou a melhor acurácia foi a de 6 neurônios na camada oculta, alcançando uma acurácia de 72,51%. Essa métrica indica a proporção de previsões corretas em relação ao total de previsões feitas, sugerindo que o modelo possui um desempenho razoável na tarefa de prever cancelamentos de reservas. Aplicado o mesmo algritmo com as colunas do data set que não estão relacionadas obtemos um melhor, mas não muito diferente, com uma acurácia de 72,76%
 
 GridSearchCV
-De seguida usamos os GridSearchCV que realiza uma busca exaustiva através de um espaço de hiperparâmetros pré-definido, avaliando cada combinação possível para encontrar a melhor configuração do modelo com base em uma métrica de desempenho, neste acaso acurácia.
-Os parametros do GridSearch foram:
-1. optimizer: ['adam', 'rmsprop'] adam e rmsprop são algoritmos de otimização que ajustam os pesos da rede neural durante o treinamento.
-2. neurons: [5, 6] o numero de neurónios que tinha dado melhor acurácia.
-3. batch_size: [10, 16]
-4. epochs: [10, 20] O número de épocas (iterações sobre o conjunto de dados) a serem utilizadas durante o treinamentoneste caso utilizamos 10 e 20 épocas.
-
-Resultado
-Apos a execução do SearchGridCV a configuração com melhor acurácia é a de 'batch_size': 10, 'epochs': 20, 'neurons': 6, 'optimizer': 'adam', com 72,9%.
-
-Atravez da analisação dos gráficos conseguimos ver que acontece uma sitiuação de over traing, onde a validation accuracy desce draticamente para 0 e a validation Loss sobe, o que é um mau sinal, no entanto o algoritmo consegue recuperar.
+  Neste trabalho, implementamos o GridSearchCV, uma técnica poderosa para realizar uma busca exaustiva através de um espaço com parâmetros pré-definidos. O objetivo é encontrar a melhor configuração para uma Rede Neural (Neural Networks) com base em uma métrica de desempenho específica, que, neste caso, é a acurácia.
+  
+  Parâmetros testados:
+    1. optimizer: ['adam', 'rmsprop'] Adam e rmsprop são algoritmos de otimização que ajustam os pesos da rede neural durante o treinamento.
+    2. neurons: [5, 6] Esses valores foram escolhidos com base em experimentos anteriores que indicaram que 5 e 6 neurônios apresentaram um desempenho melhor.
+    3. batch_size: [10, 16] Define quantas amostras de treinamento serão processadas antes de atualizar os pesos da rede.
+    4. epochs: [10, 20] O número de épocas (iterações sobre o conjunto de dados) a serem utilizadas durante o treinamentoneste caso utilizamos 10 e 20 épocas.
+  
+  Implementação
+    Para garantir a reprodutibilidade dos resultados, utilizamos seeds tanto para o NumPy quanto para o TensorFlow. A classe KerasClassifier foi utilizada para envolver nosso modelo de rede neural, permitindo a integração com o GridSearchCV.
+  
+  Resultado
+    Apos a execução do SearchGridCV a configuração com melhor acurácia é a de 'batch_size': 10, 'epochs': 20, 'neurons': 6, 'optimizer': 'adam', com 72,9%.
+  
+  Atravez da analisação dos gráficos conseguimos ver que acontece uma sitiuação de over traing, onde a validation accuracy desce draticamente para 0 e a validation Loss sobe, o que é um mau sinal, no entanto o algoritmo consegue recuperar.
