@@ -35,7 +35,8 @@ os.environ['TF_CPP_MIN_LOG_LEVEL'] = '2'  # Suppress TensorFlow warnings
 from sklearn.metrics import (
     accuracy_score, classification_report, confusion_matrix
 )
-
+from tensorflow.keras.models import Sequential
+from tensorflow.keras.layers import Dense
 # Set warnings to ignore
 warnings.filterwarnings('ignore')
 
@@ -91,7 +92,7 @@ class Algoritmos:
         print("Accuracy:", acc*100)
         print("\nClassification Report:\n", classification_report(y_test, y_pred))
         print("\nConfusion Matrix", confusion_matrix(y_test, y_pred))
-        return knn
+        return acc, knn
 
 
     def crossValidation_knn(self, X, Y, cv, k):
@@ -388,7 +389,7 @@ class Algoritmos:
         print("Accuracy:", acc*100)
         print("\nClassification Report:\n", classification_report(y_test, y_pred))
         print("\nConfusion Matrix", confusion_matrix(y_test, y_pred))
-        return scv
+        return acc, scv
 
 
     def crossValidation_svc(self, X, Y, cv):
@@ -520,7 +521,7 @@ class Algoritmos:
 
         print("Classification Report (Oversampled):\n", classification_report(y_test, y_pred_undersampled))
         print("Confusion Matrix (Oversampled):\n", confusion_matrix(y_test, y_pred_undersampled))
-        return acc_oversampled, acc_undersampled, scv_oversampled, scv_undersampled
+        return acc_oversampled*100, acc_undersampled, scv_oversampled, scv_undersampled
     
 
       
@@ -538,7 +539,7 @@ class Algoritmos:
         print("Accuracy:", acc*100)
         print("\nClassification Report:\n", classification_report(y_test, y_pred))
         print("\nConfusion Matrix", confusion_matrix(y_test, y_pred))
-        return dt
+        return acc*100, dt
 
 
     def crossValidation_dt(self, X, Y, cv):
@@ -746,7 +747,7 @@ class Algoritmos:
         return X_lasso
 
         # Define function to create the MLP network
-        def nnetClassif(self, inputDim, optimizer, neurons):
+    def nnetClassif(self, inputDim, optimizer, neurons):
             # Initialize the Sequential model
             model = Sequential()
             

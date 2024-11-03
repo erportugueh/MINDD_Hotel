@@ -1,0 +1,12 @@
+--------K-Nearest Neighbors
+--------Naive Bayes
+--------Support Vector Machine
+--------Decision Trees
+
+Holdout:
+CrossValidation:
+Leave-one-out:
+Bootstrap:
+Oversampling:
+Undersampling:
+
