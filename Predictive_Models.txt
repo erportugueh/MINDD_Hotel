@@ -1,12 +1,336 @@
+Algoritmos de classificação
 --------K-Nearest Neighbors
+Um algoritmo, baseado em instâncias, de classificação que utliza a proximidade de amostras de dados, avaliando os vizinhos mais proximos, k
 --------Naive Bayes
+Um algoritmo que gera uma tabela de probabilidades baseado no teorema de Bayes, asume-se que as caracterìsticas são independentes
 --------Support Vector Machine
+Um algoritmo que encontra o hiperplano ideal para separar as classes num estapço de alta dimensão, utiliza o truque de kernel para os dados não lineares
 --------Decision Trees
+Um algotimo baseado em árvores de decisão devide as dados em valores de caracterìsticas, resultando assim numa estrutura estilo árvore de decisão
 
-Holdout:
-CrossValidation:
-Leave-one-out:
-Bootstrap:
-Oversampling:
-Undersampling:
+Algortimos de Validação de dados
+--------Holdout
+Devide o conjunto de treino e de teste, neste caso 2/3 irão para o treino, e 1/3 para o teste
+--------CrossValidation
+Devide o conjunto em folds, ou seja, subconjuntos e treuna em k-1 folds, o restante para o teste, o corss validation depende do número de folds que se queira utlizar no dataset
+--------Leave-one-out
+Uma das maneiras de fazer cross validation, é utilizar o leave one out, que utiliza a validação cruzado, onde o k é igual ao numero de pontos de dados, o problema deste algoritmo, é que devido
+a enorme quantidade de rows no dataset que foi fornecido, irá demorar um tempo extremamente alto
+--------Bootstrap
+O bootstrap, tendo sido o modelo dividio, neste caso com holdout, irá realizar uma reamostragem dos conjuntos de dados, que a sua vez, 
+irá ser criados para amostrar com reposição a partir do conjunto de dados original
+--------Oversampling
+Aumenta o tamanho da classe minoritária ao duplicar amostras, ou a sua vez, criar amostras sintéticas
+--------Undersampling
+Reduz o tamanho da clase maioritaria, ao descartar amostras aleatoriamente
 
+Com base neste algoritmos de classificação e posterior validação, podemos concluir, que para cada algoritmo de classificação, poderemos utilizar os vários de validação
+Para assim determinar qual irá ser o melhor classificador para o dataset, assim como um análise dos valores de análise, sendos estes
+Accuracy, f1_score, precission, recall e a matriz de confusão
+E finalmente, irão ser elimadas, outras colunas do dataset, com base na análise dos graficos, fazendo assim uma simplificação do dataset, levando, na sua maioria, a uma melhora nos algoritmos
+
+
+Para efeitos práticos e facilidade de leitura, neste .txt, irei colocar os melhores modelos de validação, para cada modelo de classificação, devido que o análise individual, 
+seria extremamente repetitivo
+
+Melhores classificadores para o dataset, sem ter eliminado columnas:
+
+1. Knn
+Para o knn primeiro é necessário definir, qual irá ser o valor de K a utilizar, neste caso, com base num grafico que determina o melhor k, esta entre 17-20, embora isto seja, assim, devido ao dataset, irá ser mais correto
+utilizar o k menor, 3, 5 ou 7
+Para o caso do knn, com valor k de 5, o melhor modelo de validação para este classificador é o Bootstrap enquanto a accuracy, mas, enquanto ao resto de valores, o mais consistente é o holdout
+Analizando:
+Holdout
+Accuracy: 67.30604880828032
+
+Classification Report:
+               precision    recall  f1-score   support
+
+           0       0.73      0.79      0.76      6893
+           1       0.53      0.45      0.49      3638
+
+    accuracy                           0.67     10531
+   macro avg       0.63      0.62      0.62     10531
+weighted avg       0.66      0.67      0.67     10531
+
+
+Confusion Matrix 
+[[5464 1429]
+ [2014 1624]]
+
+True Positives (TP): 1624 intâncias da classe 1 corretamente classifciadas.
+True Negatives (TN): 5464 intâncias da classe 0 corretamente classifciadas.
+False Positives (FP): 1429 instâncias da clase 0 incorretamente classifciadas como 1.
+False Negatives (FN): 2014 instâncias da clase 1 incorretamente classifciadas como 0.
+
+Accuracy: 67.3
+precision: 0.625
+recall: 0.615
+f1-score: 62
+
+Podemos concluir que o modelo tem  mais problemas para determinar a classe 1, em comparação com a classe 0, mas os valores são em si muito proximos
+
+Para efeitos de análise, o bootstrap é o que tem melhor accuracy, mas ao analizar, o precision, recall, f1 e a matriz de confusão
+Podemos determinar que o bootstrap embora sendo o que tem mais accuracy, para efeitos praticos é o mais inconsistente
+Bootstrap Mean Accuracy: 69.29%
+Classification Report:
+               precision    recall  f1-score   support
+
+           0       0.84      0.14      0.23      6891
+           1       0.37      0.95      0.53      3640
+
+    accuracy                           0.42     10531
+   macro avg       0.61      0.54      0.38     10531
+weighted avg       0.68      0.42      0.34     10531
+
+Bootstrap Mean Accuracy:
+ [[ 931 5960]
+ [ 171 3469]]
+
+
+2. Naive Bayes
+Para o naives bayes, utilizou-se o Gaussian Naive Bayes, para poder fazer a classificação
+Para o caso do naives bayes, o melhor modelo de validação para este classificador é o Bootstrap enquanto a holdout
+Analizando:
+Holdout
+
+Accuracy: 69.51856423891368
+
+Classification Report:
+               precision    recall  f1-score   support
+
+           0       0.73      0.86      0.79      6891
+           1       0.59      0.39      0.47      3640
+
+    accuracy                           0.70     10531
+   macro avg       0.66      0.62      0.63     10531
+weighted avg       0.68      0.70      0.68     10531
+
+
+Confusion Matrix
+ [[5907  984]
+ [2226 1414]]
+
+True Positives (TP): 1414 intâncias da classe 1 corretamente classifciadas.
+True Negatives (TN): 5907 intâncias da classe 0 corretamente classifciadas.
+False Positives (FP): 984 instâncias da clase 0 incorretamente classifciadas como 1.
+False Negatives (FN): 2226 instâncias da clase 1 incorretamente classifciadas como 0.
+
+Accuracy: 69.5%
+precision: 0.66
+recall: 0.625
+f1-score: 0.63
+
+Podemos concluir novamente que o modelo de classificação, irá ter problemas em classificar instâncias da classe 1
+
+3. Support Vector Machine
+Para este, utilizou-se o classificador SVC, com max_iter de 1000 e o kernel ser linear
+Para o caso do svc, o melhor modelo de validação para este classificador é o cross validation com 10 folds
+
+model accuracy with 10-fold cross-validation (in %): 49.897065064538715
+
+Classification Report:
+               precision    recall  f1-score   support
+
+           0       0.69      0.42      0.52     22976
+           1       0.37      0.65      0.47     12126
+
+    accuracy                           0.50     35102
+   macro avg       0.53      0.53      0.50     35102
+weighted avg       0.58      0.50      0.51     35102
+
+Confusion Matrix
+ [[ 9630 13346]
+ [ 4241  7885]]
+
+True Positives (TP): 7885 intâncias da classe 1 corretamente classifciadas.
+True Negatives (TN): 9630 intâncias da classe 0 corretamente classifciadas.
+False Positives (FP): 13346 instâncias da clase 0 incorretamente classifciadas como 1.
+False Negatives (FN): 4241 instâncias da clase 1 incorretamente classifciadas como 0.
+
+Accuracy: 49.89%
+precision: 0.53
+recall: 0.535
+f1-score: 0.495
+
+Podemos determinar que para o o dataset utilizando o support vectore machine, independentemente do modelos de validação de dados, irá ser muito pobre, por abaixo dos 50%
+
+4. Decision Trees
+Utilizou-se o modelo de classificação de decision tree classifier, colocando o criterion gini, com uma profundidade máxima de 10
+Para o caso do decision tre, o melhor modelo de validação para este classificador é holdout, embora o oversample e o undersample estão muito próximos
+Analizando:
+
+Accuracy: 77.12467951761465
+
+Classification Report:
+               precision    recall  f1-score   support
+
+           0       0.81      0.85      0.83      6893
+           1       0.69      0.63      0.65      3638
+
+    accuracy                           0.77     10531
+   macro avg       0.75      0.74      0.74     10531
+weighted avg       0.77      0.77      0.77     10531
+
+
+Confusion Matrix 
+[[5848 1045]
+ [1364 2274]]
+
+True Positives (TP): 2274 intâncias da classe 1 corretamente classifciadas.
+True Negatives (TN): 5848 intâncias da classe 0 corretamente classifciadas.
+False Positives (FP): 1045 instâncias da clase 0 incorretamente classifciadas como 1.
+False Negatives (FN): 1364 instâncias da clase 1 incorretamente classifciadas como 0.
+
+Accuracy: 77.1%
+precision: 0.75
+recall: 0.74
+f1-score: 0.74
+
+Podemos determinar que para o o dataset utilizando o decision tree, é muito positivo o holdout, tendo melhores valores que o resto de classificadores
+
+Em conclusão, para o dataset, sem elimnar as colunas, o melhor irá ser o decision tree com o método holdout
+
+Melhores classificadores para o dataset, tendo eliminado columnas:
+'arrival_date_day_of_month', 'babies', 'meal', 'reserved_room_type', 'adults', 'children', 'babies', 'is_repeated_guest', 'previous_cancellations', 'previous_bookings_not_canceled','booking_changes', 'days_in_waiting_list', 'required_car_parking_spaces'
+
+
+
+1. Knn
+
+Analizando:
+Holdout
+Accuracy: 67.26806571075872
+
+Classification Report:
+               precision    recall  f1-score   support
+
+           0       0.73      0.79      0.76      6893
+           1       0.53      0.44      0.48      3638
+
+    accuracy                           0.67     10531
+   macro avg       0.63      0.62      0.62     10531
+weighted avg       0.66      0.67      0.66     10531
+
+
+Confusion Matrix 
+[[5467 1426]
+ [2021 1617]]
+
+Accuracy: 67.26%
+precision: 0.63
+recall: 0.62
+f1-score: 0.62
+
+True Positives (TP): 5467 intâncias da classe 1 corretamente classifciadas.
+True Negatives (TN): 1617 intâncias da classe 0 corretamente classifciadas.
+False Positives (FP): 1426 instâncias da clase 0 incorretamente classifciadas como 1.
+False Negatives (FN): 2021 instâncias da clase 1 incorretamente classifciadas como 0.
+
+Nesta caso, no bootstrap volta a ser o que maior accuracy tem, mas ao analizar o Classification report e a matriz de confusão, o melhor irá ser o holdout
+Mas como se pode comprobar, não existe uma melhora significativa neste classificador
+
+2. Naive Bayes
+
+
+Analizando:
+Holdout
+
+Accuracy: 69.90789098851012
+
+Classification Report:
+               precision    recall  f1-score   support
+
+           0       0.72      0.88      0.79      6891
+           1       0.61      0.37      0.46      3640
+
+    accuracy                           0.70     10531
+   macro avg       0.67      0.62      0.62     10531
+weighted avg       0.68      0.70      0.68     10531
+
+
+Confusion Matrix
+ [[6030  861]
+ [2308 1332]]
+
+True Positives (TP): 1332 intâncias da classe 1 corretamente classifciadas.
+True Negatives (TN): 6030 intâncias da classe 0 corretamente classifciadas.
+False Positives (FP): 861 instâncias da clase 0 incorretamente classifciadas como 1.
+False Negatives (FN): 2308 instâncias da clase 1 incorretamente classifciadas como 0.
+
+Accuracy: 69.9%
+precision: 0.67
+recall: 0.62
+f1-score: 0.62
+
+Podemos verificar que ao eliminar as colunas, a classe 0 irá ter vantagem em comparação com a classe 1, mas ao seu tempo, o accuracy irá aumentar, embora não seja muito significativamente
+
+
+
+3. Support Vector Machine
+
+Accuracy: 61.8649700883107
+Classification Report (Oversampled):
+               precision    recall  f1-score   support
+
+           0       0.70      0.74      0.72      6891
+           1       0.44      0.39      0.42      3640
+
+    accuracy                           0.62     10531
+   macro avg       0.57      0.57      0.57     10531
+weighted avg       0.61      0.62      0.61     10531
+
+Confusion Matrix (Oversampled):
+ [[5090 1801]
+ [2215 1425]]
+
+True Positives (TP): 1425 intâncias da classe 1 corretamente classifciadas.
+True Negatives (TN): 5090 intâncias da classe 0 corretamente classifciadas.
+False Positives (FP): 1801 instâncias da clase 0 incorretamente classifciadas como 1.
+False Negatives (FN): 2215 instâncias da clase 1 incorretamente classifciadas como 0.
+
+Accuracy: 61.86%
+precision: 0.57
+recall: 0.57
+f1-score: 0.57
+
+Como podemos verificar, no caso so support vector classifier, o modelo irá aumentar o accuracy considerávelmente, sendo o que maior impacto teve desta modificação
+
+
+
+4. Decision Trees
+
+Accuracy: 77.21963726141867
+
+Classification Report:
+               precision    recall  f1-score   support
+
+           0       0.81      0.85      0.83      6893
+           1       0.69      0.62      0.65      3638
+
+    accuracy                           0.77     10531
+   macro avg       0.75      0.74      0.74     10531
+weighted avg       0.77      0.77      0.77     10531
+
+
+Confusion Matrix 
+[[5873 1020]
+ [1379 2259]]
+
+True Positives (TP): 2259 intâncias da classe 1 corretamente classifciadas.
+True Negatives (TN): 5873 intâncias da classe 0 corretamente classifciadas.
+False Positives (FP): 1020 instâncias da clase 0 incorretamente classifciadas como 1.
+False Negatives (FN): 1379 instâncias da clase 1 incorretamente classifciadas como 0.
+
+Accuracy: 77.2%
+precision: 0.75
+recall: 0.74
+f1-score: 0.74
+
+
+Ao verificar novamente, temos que o decision tree irá aumentar, como o knn e o naives bayes, não é algo muito significativo
+
+
+Em conclusão,
+O melhor modelo de classificação para o nosso dataset, irá ser sem dúvida o Decision Tree Classifier, com o método Holdout
+Sendo não so o que melhor accuracy tem de todos, mas também o que tem melhor f1, precission, recall e as matrizes de confusão mais acertadas e balanceadas
