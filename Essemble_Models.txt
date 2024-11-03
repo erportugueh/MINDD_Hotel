@@ -1,0 +1,415 @@
+Agora será feita uma analise comparativados modelos de ensemble, onde serão comparados os resultados obtidos entre dois conjuntos de dados.
+No primeiro conjunto, todas as colunas do dataset original foram usadas para a realização da análise.
+No segundo conjunto, algumas das colunas foram removidas, para que se pudesse observar como essa modificação afetaria o desempenho dos modelos.
+Esta comparação permitirá a identificar o impacto da redução das variáveis em análise no desempenho dos modelos de ensemble e identificar possíveis melhorias de eficiência e precisão.
+
+
+1. Modelo de Majority Voting:
+Vantagens:É um modelo simples e rapido de fazer implementação. Funciona bem quando há um número razoável de classificadores base que convergem em suas previsões.
+Desvantagens: Desempenho limitado (previsão em torno de 72%), com dificuldade para analisar a Classe 1, especialmente em recall.
+Conclusão: Este método tem desempenho inferior aos métodos mais sofisticados, mas é útil para estabelecer uma base de comparação.
+
+Modelo com todas as colunas
+Accuracy: 0.7207292754724147
+Classification Report:
+              precision    recall  f1-score   support
+
+           0       0.73      0.92      0.81      6893
+           1       0.69      0.34      0.46      3638
+
+    accuracy                           0.72     10531
+   macro avg       0.71      0.63      0.64     10531
+weighted avg       0.71      0.72      0.69     10531
+
+Confusion Matrix:
+ [[6336  557]
+ [2384 1254]]
+
+
+
+Modelo com as colunas removidas
+Accuracy: 0.7324090779603076
+Classification Report:
+              precision    recall  f1-score   support
+
+           0       0.74      0.92      0.82      6893
+           1       0.71      0.38      0.50      3638
+
+    accuracy                           0.73     10531
+   macro avg       0.72      0.65      0.66     10531
+weighted avg       0.73      0.73      0.71     10531
+
+Confusion Matrix:
+ [[6319  574]
+ [2244 1394]]
+
+
+
+2. Modelo de weighted Majority Voting
+Vantagens: A ponderação das previsões dos classificadores melhora a precisão em relação ao Majority Voting, com uma acurácia de cerca de 74%.
+Desvantagens: A melhoria é minima, e o modelo ainda possui baixa capacidade de analisar a Classe 1.
+Conclusão: Embora seja uma melhoria sobre o Majority Voting, ainda é superado por métodos mais complexos.
+
+
+Modelo com todas as colunas
+Accuracy: 0.7436140917291805
+Classification Report:
+              precision    recall  f1-score   support
+
+           0       0.74      0.93      0.83      6893
+           1       0.75      0.39      0.51      3638
+
+    accuracy                           0.74     10531
+   macro avg       0.75      0.66      0.67     10531
+weighted avg       0.75      0.74      0.72     10531
+
+Confusion Matrix:
+ [[6426  467]
+ [2233 1405]]
+
+
+Modelo com as colunas removidas
+Accuracy: 0.7450384578862406
+Classification Report:
+              precision    recall  f1-score   support
+
+           0       0.74      0.93      0.83      6893
+           1       0.76      0.39      0.51      3638
+
+    accuracy                           0.75     10531
+   macro avg       0.75      0.66      0.67     10531
+weighted avg       0.75      0.75      0.72     10531
+
+Confusion Matrix:
+ [[6437  456]
+ [2229 1409]]
+
+
+
+
+3.Modelo de Stacking Logistic Regression
+Vantagens: A combinação de classificadores usando regressão logística aumenta a previsão para aproximadamente 75%, com boa precisão para ambas as classes.
+Desvantagens: Apesar do aumento na precisão, o recall para a Classe 1 ainda não é ideal, indicando dificuldade em analisar todos os exemplos dessa classe.
+Conclusão: Um modelo robusto que apresenta um desempenho geral razoável, mas não é o melhor em comparação aos modelos.
+
+Modelo com todas as colunas
+Accuracy: 0.7514955844649132
+Classification Report:
+              precision    recall  f1-score   support
+
+           0       0.78      0.86      0.82      6893
+           1       0.68      0.54      0.60      3638
+
+    accuracy                           0.75     10531
+   macro avg       0.73      0.70      0.71     10531
+weighted avg       0.74      0.75      0.74     10531
+
+Confusion Matrix:
+ [[5962  931]
+ [1686 1952]]
+
+
+Modelo com colunas removidas
+Accuracy: 0.7511157534896971
+Classification Report:
+              precision    recall  f1-score   support
+
+           0       0.77      0.87      0.82      6893
+           1       0.69      0.52      0.59      3638
+
+    accuracy                           0.75     10531
+   macro avg       0.73      0.70      0.71     10531
+weighted avg       0.74      0.75      0.74     10531
+
+Confusion Matrix:
+ [[6029  864]
+ [1757 1881]]
+
+
+
+4. Modelo de Stacking SVC
+Vantagens: Utilizar o SVC como meta-classificador fornece um bom equilíbrio e eleva a previsão para cerca de 77%.
+Desvantagens: Sensível à eliminação de colunas, mostrando uma diminuição do desempenho quando as colunas são reduzidas.
+Conclusão: Embora o desempenho seja bom com o conjunto completo, o modelo é instável e apresenta limitações na Classe 1 quando há menor quantidade de colunas.
+
+Modelo com todas as colunas
+Accuracy: 0.7712467951761466
+Classification Report:
+              precision    recall  f1-score   support
+
+           0       0.81      0.85      0.83      6893
+           1       0.69      0.63      0.65      3638
+
+    accuracy                           0.77     10531
+   macro avg       0.75      0.74      0.74     10531
+weighted avg       0.77      0.77      0.77     10531
+
+Confusion Matrix:
+ [[5848 1045]
+ [1364 2274]]
+
+Modelo com colunas removidas
+Accuracy: 0.6723008261323711
+Classification Report:
+              precision    recall  f1-score   support
+
+           0       0.73      0.79      0.76      6893
+           1       0.53      0.44      0.48      3638
+
+    accuracy                           0.67     10531
+   macro avg       0.63      0.62      0.62     10531
+weighted avg       0.66      0.67      0.66     10531
+
+Confusion Matrix:
+ [[5467 1426]
+ [2025 1613]]
+
+
+
+
+5. Modelo de Bagging Classifier
+Vantagens: Robusto e consistente com uma previsão de cerca de 77% com ou sem colunas removidas. Também apresenta um bom recall e precisão para ambas as classes.
+Desvantagens: Não supera os modelos de boosting em desempenho, mas destaca-se pela estabilidade.
+Conclusão: Uma opção confiável e estável, porém, fica ligeiramente abaixo dos melhores modelos de boosting.
+
+Modelo com todos as colunas
+              precision    recall  f1-score   support
+
+           0       0.81      0.86      0.83      6891
+           1       0.69      0.62      0.66      3640
+
+    accuracy                           0.77     10531
+   macro avg       0.75      0.74      0.74     10531
+weighted avg       0.77      0.77      0.77     10531
+
+Bagging Classifier Accuracy: 0.7743804007216789
+
+
+
+Modelo com colunas removidas
+
+              precision    recall  f1-score   support
+
+           0       0.81      0.86      0.83      6891
+           1       0.70      0.62      0.65      3640
+
+    accuracy                           0.77     10531
+   macro avg       0.75      0.74      0.74     10531
+weighted avg       0.77      0.77      0.77     10531
+
+Bagging Classifier Accuracy: 0.7742854429778748
+
+
+
+6. Modelo de Boosting Adaboosting
+Vantagens: Consistência e estável, com uma previsão próxima de 74%. Apresenta uma melhoria no recall para a Classe 1 em comparação com métodos de voting.
+Desvantagens: Performance inferior aos modelos mais avançados de boosting.
+Conclusão: Um método básico de boosting que não compete em desempenho com Gradient Boosting, XGBoost ou LightGBM.
+
+Modelo com todos as colunas
+Accuracy: 0.7447535846548285
+Classification Report:
+              precision    recall  f1-score   support
+
+           0       0.80      0.81      0.81      6893
+           1       0.63      0.62      0.63      3638
+
+    accuracy                           0.74     10531
+   macro avg       0.72      0.72      0.72     10531
+weighted avg       0.74      0.74      0.74     10531
+
+Confusion Matrix:
+ [[5573 1320]
+ [1368 2270]]
+
+Modelo com colunas removidas
+Accuracy: 0.7449435001424366
+Classification Report:
+              precision    recall  f1-score   support
+
+           0       0.80      0.82      0.81      6893
+           1       0.64      0.61      0.62      3638
+
+    accuracy                           0.74     10531
+   macro avg       0.72      0.71      0.72     10531
+weighted avg       0.74      0.74      0.74     10531
+
+Confusion Matrix:
+ [[5619 1274]
+ [1412 2226]]
+
+
+
+
+7. Modelo de Boosting Gradient Boosting
+Vantagens: Consistência com uma precisão de aproximadamente 78%, apresneta um bom equilíbrio entre precisão e recall, especialmente para a Classe 1.
+Desvantagens: Um pouco mais lento do que o XGBoost e LightGBM devido ao processo de treino.
+Conclusão: Um modelo robusto que oferece bom desempenho, mas ainda fica atrás em precisão final dos métodos mais otimizados, como LightGBM.
+
+Modelo com todos as colunas
+Accuracy: 0.7779887949862311
+Classification Report:
+              precision    recall  f1-score   support
+
+           0       0.81      0.86      0.84      6893
+           1       0.70      0.62      0.66      3638
+
+    accuracy                           0.78     10531
+   macro avg       0.76      0.74      0.75     10531
+weighted avg       0.77      0.78      0.77     10531
+
+Confusion Matrix:
+ [[5955  938]
+ [1400 2238]]
+
+
+Modelo com colunas removidas
+
+Accuracy: 0.7788434146804671
+Classification Report:
+              precision    recall  f1-score   support
+
+           0       0.81      0.86      0.84      6893
+           1       0.70      0.62      0.66      3638
+
+    accuracy                           0.78     10531
+   macro avg       0.76      0.74      0.75     10531
+weighted avg       0.77      0.78      0.78     10531
+
+Confusion Matrix:
+ [[5948  945]
+ [1384 2254]]
+
+
+
+
+8. modelos de Boosting XGBoost
+Vantagens: Previsão alta (cerca de 79%) e bom desempenho de precisão e recall para ambas as classes. É mais rápido e eficiente do que Gradient Boosting.
+Desvantagens: Pode ser sensível a pequenos ajustes de hiperparâmetros e requer mais experiencias para alcançar o desempenho ideal.
+Conclusão: Um dos melhores modelos em termos de precisão e equilíbrio.
+
+Modelo com todos as colunas
+Accuracy: 0.789193808755104
+Classification Report:
+              precision    recall  f1-score   support
+
+           0       0.82      0.86      0.84      6893
+           1       0.71      0.65      0.68      3638
+
+    accuracy                           0.79     10531
+   macro avg       0.77      0.76      0.76     10531
+weighted avg       0.79      0.79      0.79     10531
+
+Confusion Matrix:
+ [[5946  947]
+ [1273 2365]]
+
+Modelo com colunas removidas
+
+Accuracy: 0.7909980058873801
+Classification Report:
+              precision    recall  f1-score   support
+
+           0       0.83      0.86      0.84      6893
+           1       0.72      0.65      0.68      3638
+
+    accuracy                           0.79     10531
+   macro avg       0.77      0.76      0.76     10531
+weighted avg       0.79      0.79      0.79     10531
+
+Confusion Matrix:
+ [[5955  938]
+ [1263 2375]]
+
+
+
+
+9. Modelo de Boosting Lightgbm
+Vantagens: Apresenta a maior precisão, atingindo quase 80%, e mantém um excelente equilíbrio entre precisão e recall. É rápido e eficaz, com bom desempenho até mesmo com colunas removidas.
+Desvantagens: Pode exigir algum ajuste dos hiperparâmetros para alcançar um melhor desempenho.
+Conclusão: Este é o melhor modelo devido à alta precisão, eficiência e capacidade de generalização com ou sem a presença de todas as colunas.
+
+Modelo comtodos as colunas
+Accuracy: 0.7932769917386763
+Classification Report:
+              precision    recall  f1-score   support
+
+           0       0.83      0.86      0.85      6893
+           1       0.72      0.66      0.69      3638
+
+    accuracy                           0.79     10531
+   macro avg       0.77      0.76      0.77     10531
+weighted avg       0.79      0.79      0.79     10531
+
+Confusion Matrix:
+ [[5960  933]
+ [1244 2394]]
+
+Modelo com colunas removidas
+
+Accuracy: 0.7953660621023645
+Classification Report:
+              precision    recall  f1-score   support
+
+           0       0.83      0.87      0.85      6893
+           1       0.73      0.66      0.69      3638
+
+    accuracy                           0.80     10531
+   macro avg       0.78      0.76      0.77     10531
+weighted avg       0.79      0.80      0.79     10531
+
+Confusion Matrix:
+ [[5992  901]
+ [1254 2384]]
+
+
+Melhor Modelo: Boosting com LightGBM
+
+O modelo LightGBM demonstrou o melhor desempenho geral entre os modelos testados, alcançando uma precisão de cerca de 79,5% 
+e um equilíbrio sólido entre precisão e recall nas duas classes, o que garante uma performance consistente e confiável. 
+Essa eficiência destaca-se tanto com o dataset completo quanto com colunas removidas, evidenciando sua flexibilidade e robustez.
+O modelo LightGBM mantém a alta precisão e consegue capturar bem as relações entre variáveis, adaptando-se mesmo a 
+dados com dimensões variáveis, o que é crucial em projetos com dados sujeitos a mudanças.
+Comparado a outros métodos de boosting, o LightGBM é mais rápido e requer menos recursos computacionais, sendo ideal para cenários com grandes volumes de dados.
+O LightGBM mostrou-se resistente à remoção de colunas, mantendo um ótimo desempenho. Essa característica tornam no altamente adaptável, uma vantagem significativa
+em ambientes de produção onde os dados podem não ser sempre completos ou consistentes.
+Portanto, o LightGBM é a melhor escolha para aplicações que exigem uma combinação de precisão, eficiência e flexibilidade, com a capacidade de se ajustar a diferentes
+cenários de dados sem comprometer a performance.
+
+
+
+
+Comparacao entre eles com todas as colunas 
+
+Sem colunas removidas
+Boosting with LightGBM: 0.7933
+Boosting with XGBoost: 0.7892
+Boosting with Gradient Boosting: 0.7780
+Bagging Classifier: 0.7744
+Stacking with SVM: 0.7712
+Stacking with Logistic Regression: 0.7515
+Boosting with AdaBoosting: 0.7448
+Weighted Majority Voting Classifiers: 0.7436
+Majority Voting Classifiers: 0.7207
+
+Com colunas removidas
+Boosting with LightGBM: 0.7954
+Boosting with XGBoost: 0.7910
+Boosting with Gradient Boosting: 0.7788
+Bagging Classifier: 0.7743
+Stacking with Logistic Regression: 0.7511
+Weighted Majority Voting Classifiers: 0.7450
+Boosting with AdaBoosting: 0.7449
+Majority Voting Classifiers: 0.7324
+Stacking with SVM: 0.6723
+
+
+LightGBM e XGBoost lideram em desempenho tanto com o conjunto completo quanto com as colunas removidas, mostrando robustez e flexibilidade.
+Gradient Boosting também oferece resultados consistentes e próximos dos líderes, mas fica ligeiramente atrás em termos de precisão.
+Bagging Classifier mantém uma acurácia estável e é pouco afetado pela eliminação de colunas.
+Stacking com SVM é o modelo mais sensível à remoção de colunas, sofrendo uma queda significativa de precisão.
+
+
+
+
+
