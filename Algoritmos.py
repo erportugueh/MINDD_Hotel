@@ -156,7 +156,7 @@ class Algoritmos:
         mean_score = np.mean(scores) * 100
         print(f"Bootstrap Mean Accuracy: {mean_score:.2f}%")
         print(f"Classification Report:\n", classification_report(Y_test, y_pred))
-        print(f"Bootstrap Mean Accuracy:\n", confusion_matrix(Y_test, y_pred))
+        print(f"Confusion Matrix:\n", confusion_matrix(Y_test, y_pred))
     
         return mean_score, knn
     
@@ -301,7 +301,7 @@ class Algoritmos:
         mean_score = np.mean(scores) * 100
         print(f"Bootstrap Mean Accuracy: {mean_score:.2f}%")
         print(f"Classification Report:\n", classification_report(Y_test, y_pred))
-        print(f"Bootstrap Mean Accuracy:\n", confusion_matrix(Y_test, y_pred))
+        print(f"Confusion Matrix:\n", confusion_matrix(Y_test, y_pred))
     
         return mean_score, gnb
     
@@ -454,7 +454,7 @@ class Algoritmos:
         mean_score = np.mean(scores) * 100
         print(f"Bootstrap Mean Accuracy: {mean_score:.2f}%")
         print(f"Classification Report:\n", classification_report(Y_test, y_pred))
-        print(f"Bootstrap Mean Accuracy:\n", confusion_matrix(Y_test, y_pred))
+        print(f"Confusion Matrix:\n", confusion_matrix(Y_test, y_pred))
     
         return mean_score, scv
     
@@ -606,7 +606,7 @@ class Algoritmos:
         mean_score = np.mean(scores) * 100
         print(f"Bootstrap Mean Accuracy: {mean_score:.2f}%")
         print(f"Classification Report:\n", classification_report(Y_test, y_pred))
-        print(f"Bootstrap Mean Accuracy:\n", confusion_matrix(Y_test, y_pred))
+        print(f"Confusion Matrix:\n", confusion_matrix(Y_test, y_pred))
     
         return mean_score, dt
     
@@ -804,6 +804,8 @@ def majority_voting_classifiers(X, Y, classifiers, cv=5):
     print(f"Accuracy: {accuracy}")
     print("Classification Report:")
     print(report)
+    print(f"Confusion Matrix:\n", confusion_matrix(y_test, y_pred))
+
 
     return accuracy
 
@@ -841,6 +843,8 @@ def weighted_majority_voting_classifiers(X, Y, classifiers, test_size=0.3):
     print(f"Accuracy: {accuracy}")
     print("Classification Report:")
     print(report)
+    print(f"Confusion Matrix:\n", confusion_matrix(y_test, y_pred))
+
 
     return accuracy
 #----------------------------------------------------------------------------------
@@ -873,6 +877,8 @@ def stacking_logistic_regression(X, Y, base_classifiers, test_size=0.3):
     print(f"Accuracy: {accuracy}")
     print("Classification Report:")
     print(report)
+    print(f"Confusion Matrix:\n", confusion_matrix(y_test, final_predictions))
+
 
     return accuracy
 #----------------------------------------------------------------------------------
@@ -905,6 +911,8 @@ def stacking_svc(X, Y, base_classifiers, test_size=0.3):
     print(f"Accuracy: {accuracy}")
     print("Classification Report:")
     print(report)
+    print(f"Confusion Matrix:\n", confusion_matrix(y_test, final_predictions))
+
 
     return accuracy
 #----------------------------------------------------------------------------------
@@ -929,6 +937,8 @@ def bagging_classifier(X, Y, base_classifier, n_estimators=10, test_size=0.3):
     print(f"Accuracy: {accuracy}")
     print("Classification Report:")
     print(report)
+    print(f"Confusion Matrix:\n", confusion_matrix(y_test, y_pred))
+
 
     return accuracy
 #----------------------------------------------------------------------------------
@@ -952,6 +962,8 @@ def boosting_adaboosting(X, Y, base_classifier, n_estimators=50, test_size=0.3):
     print(f"Accuracy: {accuracy}")
     print("Classification Report:")
     print(report)
+    print(f"Confusion Matrix:\n", confusion_matrix(y_test, y_pred))
+
 
     return accuracy
 #--------------------------------------------------------------------------------
@@ -976,6 +988,7 @@ def boosting_gradient_boosting(X, Y, n_estimators=100, test_size=0.3):
     print(f"Accuracy: {accuracy}")
     print("Classification Report:")
     print(report)
+    print(f"Confusion Matrix:\n", confusion_matrix(y_test, y_pred))
 
     return accuracy
 #--------------------------------------------------------------------------------
@@ -1000,6 +1013,7 @@ def boosting_xgboost(X, Y, n_estimators=100, test_size=0.3):
     print(f"Accuracy: {accuracy}")
     print("Classification Report:")
     print(report)
+    print(f"Confusion Matrix:\n", confusion_matrix(y_test, y_pred))
 
     return accuracy
 #--------------------------------------------------------------------------------
@@ -1024,6 +1038,7 @@ def boosting_lightgbm(X, Y, n_estimators=100, test_size=0.3):
     print(f"Accuracy: {accuracy}")
     print("Classification Report:")
     print(report)
+    print(f"Confusion Matrix:\n", confusion_matrix(y_test, y_pred))
 
     return accuracy
     
